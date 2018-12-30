@@ -9,6 +9,11 @@ verify_ssl = true
 django = "*"
 jupyter = "*"
 notebook = "*"
+django-extensions = "*"
+beautifulsoup4 = "*"
+lxml = "*"
+requests = "*"
+requests-html = "*"
 
 [requires]
 python_version = "3.6"
