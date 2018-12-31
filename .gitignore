@@ -1,3 +1,5 @@
+app/articles/data/*
+
 
 # Created by https://www.gitignore.io/api/git,linux,macos,python,django,pycharm+all
 # Edit at https://www.gitignore.io/?templates=git,linux,macos,python,django,pycharm+all
