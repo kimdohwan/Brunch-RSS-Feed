@@ -9,13 +9,22 @@
 </head>
 <body>
     <div>hi {{my_name}}</div>
-    <div>{{ u }}</div>
+    <div>User list:</div>
     <div>
-        {% for user in a %}
-            {{ user }}
-            {{ user.uid }}
-            {{ user.content }}
+        {% for user in user_all %}
+        <div>user: {{ user }}</div>
+        <div>uid: {{ user.uid }}</div>
+        <div>content: {{ user.content }}</div>
         {% endfor %}
     </div>
+
+    <div>
+        {% for post in post_all %}
+        <div>user: {{ post }}</div>
+        <div>uid: {{ post.name }}</div>
+        <div>content: {{ post.content }}</div>
+        {% endfor %}
+    </div>
+
 </body>
 </html>
