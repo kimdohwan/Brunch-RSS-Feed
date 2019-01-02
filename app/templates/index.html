@@ -13,16 +13,15 @@
     <div>
         {% for user in user_all %}
         <div>user: {{ user }}</div>
-        <div>uid: {{ user.uid }}</div>
-        <div>content: {{ user.content }}</div>
         {% endfor %}
     </div>
 
     <div>
         {% for post in post_all %}
-        <div>user: {{ post }}</div>
-        <div>uid: {{ post.name }}</div>
+        <div>post: {{ post }}</div>
+        <div>title: {{ post.title }}</div>
         <div>content: {{ post.content }}</div>
+        <div>키워드: {{ post.keyword }}</div>
         {% endfor %}
     </div>
 
