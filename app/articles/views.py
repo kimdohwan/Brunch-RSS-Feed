@@ -6,17 +6,20 @@ from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.common.exceptions import ElementNotVisibleException
 
-from articles.models import Posts
+from articles.models import Post
 from config.settings import BASE_DIR
 
 
 # 검색한 키워드를 인자로 받아 검색결과 html 페이지를 생성
-def crawl(word):
-    html = crawl_html(word)
+def crawl(keyword):
+    html = crawl_html(keyword)
 
     if html:
         href_list = get_href_to_detail(html)
-        save_article(href_list)
+
+        # if keyword in Posts.objects.filter(keyword=keyword):
+
+        save_article(href_list, keyword)
     else:
         print('검색 결과 없음')
 
@@ -57,10 +60,9 @@ def get_href_to_detail(html):
 
 
 # 본문내용과 제목을 포스트에 저장
-def save_article(href_list):
+def save_article(href_list, keyword):
     brunch_url = 'https://brunch.co.kr'
     article_url_list = [brunch_url + href for href in href_list]
-    n = 0
     for url in article_url_list:
         r = requests.get(url)
 
@@ -68,5 +70,4 @@ def save_article(href_list):
         title = soup.select_one('div.cover_cell').text
         content = soup.select_one('div.wrap_body').prettify()
 
-        Posts.objects.create(name=title, content=content)
-
+        Post.objects.create(title=title, content=content, keyword=keyword)
