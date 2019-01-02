@@ -19,7 +19,7 @@ class TestFeed(Feed):
     description = "Updates on changes and additions to posts published in the starter."
 
     def items(self):
-        return Posts.objects.order_by('name')[:5]
+        return Posts.objects.all()
 
     def item_title(self, item):
         return item.name
