@@ -14,9 +14,9 @@ def post_detail(request, pk):
 
 
 class TestFeed(Feed):
-    title = "Posts for bedjango starter"
+    title = "브런치 검색어 피드"
     link = "/feeds/"
-    description = "Updates on changes and additions to posts published in the starter."
+    description = "등록한 검색어의 최신글들을 업데이트합니다"
 
     def items(self):
         return Posts.objects.all()
