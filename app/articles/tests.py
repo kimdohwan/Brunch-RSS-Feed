@@ -1,10 +1,7 @@
 from django.test import TestCase
 import asyncio
 
-from articles.views import test_crawl
+from articles.views import crawl, save_article
 
-# loop = asyncio.get_event_loop()
-# loop.run_until_complete(test_crawl())
-# loop.close
-
-test_crawl()
+crawl('크롤링')
+# save_article()
