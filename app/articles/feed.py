@@ -1,27 +1,28 @@
 from django.contrib.syndication.views import Feed
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.urls import reverse
-from django.utils.feedgenerator import SyndicationFeed, Rss201rev2Feed, rfc2822_date
 
-from articles.models import Post
+from articles.customize_feed import CustomFeed
+from articles.models import Article, Keyword
 
 
-def post_detail(request, pk):
-    post = Post.objects.get(pk=pk)
+def article_detail(request, pk):
+    article = Article.objects.get(pk=pk)
     context = {
-        'post': post
+        'article': article
     }
-    return render(request, 'post-detail.html', context=context)
+    return render(request, 'article-detail.html', context=context)
 
 
-class TestFeed(Feed):
+# django Feed 를 사용, get_object() 함수로 검색어를 items 에 전달
+class TestFeed(CustomFeed):
     title = ''
     brunch_title = "Brunch Feed: "
     link = "/feeds/"
     description = "등록한 검색어의 최신글들을 업데이트합니다"
 
     def items(self, keyword):
-        return Post.objects.filter(keyword=keyword)
+        return Keyword.objects.get(search_word=keyword).article.all()
 
     def item_title(self, item):
         return item.title
@@ -30,7 +31,7 @@ class TestFeed(Feed):
         return item.content
 
     def item_link(self, item):
-        return reverse('post-detail', args=[item.pk])
+        return reverse('article-detail', args=[item.pk])
 
     def get_object(self, request, *args, **kwargs):
         self.title = self.brunch_title + kwargs["keyword"]
