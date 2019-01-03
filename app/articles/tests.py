@@ -1,7 +1,7 @@
 from django.test import TestCase
 import asyncio
 
-from articles.views import crawl, save_article
+from articles.crawl import crawl
 
-crawl('크롤링')
+crawl('아')
 # save_article()
