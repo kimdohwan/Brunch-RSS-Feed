@@ -10,12 +10,10 @@
 </head>
 <body>
 
-<form action="/articles/search/">
-
+<form action="">
     <div class="row justify-content-md-center" style="margin-top: 15%;">
         <div class="container" style="max-width: 700px;">
             <div class="input-group">
-
               <input type="text" class="form-control" name="keyword">
               <div class="input-group-prepend">
                 <button class="btn btn-outline-secondary" type="submit">Feed Keyword</button>
@@ -26,6 +24,7 @@
     </div>
 </form>
 
+    <div>
     {% if after_search %}
         <div>
             <p>{{ after_search }}</p>
@@ -38,9 +37,6 @@
             </form>
         </div>
     {% endif %}
-
-
-
-
+    </div>
 </body>
 </html>
