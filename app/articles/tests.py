@@ -4,4 +4,4 @@ from bs4 import BeautifulSoup
 
 from .crawl import crawl
 
-# crawl('오잉')
+crawl()
