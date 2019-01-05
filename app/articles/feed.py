@@ -1,7 +1,7 @@
 from django.urls import reverse
 
-from articles.customize_feed import CustomFeed
-from articles.models import Keyword
+from .customize_feed import CustomFeed
+from .models import Keyword
 
 
 # django Feed 를 사용, get_object() 함수로 검색어를 items 에 전달
@@ -12,7 +12,7 @@ class TestFeed(CustomFeed):
     description = "등록한 검색어의 최신글들을 업데이트합니다"
 
     def items(self, keyword):
-        return Keyword.objects.get(search_word=keyword).article.all()
+        return Keyword.objects.get(keyword=keyword).articles.all().order_by('-published_time')
 
     def item_title(self, item):
         return item.title
