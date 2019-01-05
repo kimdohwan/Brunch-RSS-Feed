@@ -1,17 +1,7 @@
-from django.contrib.syndication.views import Feed
-from django.shortcuts import render, redirect
 from django.urls import reverse
 
 from articles.customize_feed import CustomFeed
-from articles.models import Article, Keyword
-
-
-def article_detail(request, pk):
-    article = Article.objects.get(pk=pk)
-    context = {
-        'article': article
-    }
-    return render(request, 'article-detail.html', context=context)
+from articles.models import Keyword
 
 
 # django Feed 를 사용, get_object() 함수로 검색어를 items 에 전달
