@@ -6,7 +6,7 @@ from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.common.exceptions import ElementNotVisibleException
 
-from articles.models import Article, Keyword
+from .models import Article, Keyword
 from config.settings import BASE_DIR
 
 
@@ -17,8 +17,9 @@ def crawl(keyword):
     if html:
         href_list = get_href_to_detail(html)
         save_article(href_list, keyword)
+        return True
     else:
-        return '검색 결과 없음'
+        return False
 
 
 # selenium 으로 html 문자열을 리턴(selenium 코드는 여기만 해당됨)
