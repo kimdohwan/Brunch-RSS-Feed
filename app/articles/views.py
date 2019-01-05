@@ -13,16 +13,16 @@ def article_detail(request, pk):
 
 def search_keyword(request):
     keyword = request.GET.get("keyword")
+    context = dict()
 
     if keyword:
         result = crawl(f'{keyword}')
         if not result:
-            context = {
-                'no_result': keyword,
-            }
-            return render(request, 'search_keyword.html', context=context)
-        return redirect('articles:feeds', keyword=keyword)
+            context['no_result'] = keyword
+        else:
+            return redirect('articles:feeds', keyword=keyword)
 
-    else:
-        return render(request, 'search_keyword.html')
+    keywords = Keyword.objects.all()
+    context['keywords'] = keywords
+    return render(request, 'search_keyword.html', context=context)
 
