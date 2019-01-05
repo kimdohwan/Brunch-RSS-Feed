@@ -2,7 +2,7 @@ from django.db import models
 
 
 class Keyword(models.Model):
-    keyword = models.CharField(verbose_name='검색 단어', null=False, max_length=200)
+    keyword = models.CharField(verbose_name='검색 단어', null=True, max_length=200)
 
 
 class Writer(models.Model):
