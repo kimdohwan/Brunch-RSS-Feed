@@ -2,8 +2,8 @@ import asyncio
 import os
 import re
 import time
-from functools import partial
 
+import aiohttp
 import requests
 from bs4 import BeautifulSoup
 from selenium import webdriver
@@ -66,7 +66,7 @@ def get_href_to_detail(html):
 # - 상세페이지 크롤링
 # - 데이터 저장
 def save_article(href_list, keyword):
-    href_list = href_list[:3]  # 테스트용, 3개만 긁자.
+    # href_list = href_list[:3]  # 테스트용, 3개만 긁자.
 
     obj_keyword, created = Keyword.objects.get_or_create(keyword=keyword)
     new_href_list = [new_href for new_href in href_list]
@@ -119,11 +119,17 @@ def save_article(href_list, keyword):
 
     async def test_async(url, new_href):
         print(f'Send request .. {url}')
-        loop = asyncio.get_event_loop()
-        r = await loop.run_in_executor(None, requests.get, url)
+        # loop = asyncio.get_event_loop()
+        # r = await loop.run_in_executor(None, requests.get, url)
+
+        async with aiohttp.ClientSession() as sess:
+            async with sess.get(url) as res:
+                r = await res.text()
+
         print(f'Get response .. {url}')
 
-        soup = BeautifulSoup(r.text, 'lxml')
+        soup = BeautifulSoup(r, 'lxml')
+        # soup = BeautifulSoup(r.text, 'lxml')
         title = soup.select_one('div.cover_cell').text
         content = soup.select_one('div.wrap_body').prettify()
         media_name = soup.find('meta', {'name': 'article:media_name'})['content']
