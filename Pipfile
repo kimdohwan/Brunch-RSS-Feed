@@ -15,6 +15,7 @@ lxml = "*"
 requests = "*"
 requests-html = "*"
 selenium = "*"
+aiohttp = "*"
 
 [requires]
 python_version = "3.6"
