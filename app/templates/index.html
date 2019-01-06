@@ -5,42 +5,70 @@
     <meta name="viewport"
           content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>브런치 키워드 피드 생성</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
+    <title>RSS Brunch</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css"
+          integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
 </head>
 <body>
 
-<form action="/articles/search/">
+<!-- 크롤링 후 검색결과가 없을 때 띄우는 Alert -->
+{% if no_result %}
+    <div class="alert alert-danger" role="alert">
+        <h4 class="alert-heading text-center">'{{ no_result }}' 검색결과가 없습니다</h4>
+    </div>
+{% endif %}
 
-    <div class="row justify-content-md-center" style="margin-top: 15%;">
+<!-- 인덱스 링크 -->
+<div class="text-center" style="margin-top: 200px; margin-bottom: 30px;">
+    <a class="text-black-50" href="{% url 'articles:index' %}">
+        <h2>Brunch RSS Feed</h2>
+    </a>
+</div>
+
+<!-- 검색어 받는 form -->
+<form action="">
+    <div class="row justify-content-md-center text-black-50">
         <div class="container" style="max-width: 700px;">
-            <div class="input-group">
 
-              <input type="text" class="form-control" name="keyword">
-              <div class="input-group-prepend">
-                <button class="btn btn-outline-secondary" type="submit">Feed Keyword</button>
-              </div>
-
+            <!-- 키워드 or 작가 검색 체크 박스 -->
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="search" id="inlineRadio1" value="keyword" checked>
+                <label class="form-check-label" for="inlineRadio1">키워드</label>
             </div>
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="radio" name="search" id="inlineRadio2" value="writer">
+                <label class="form-check-label" for="inlineRadio2">작가</label>
+            </div>
+
+            <!-- user 가 입력하는 검색어 input -->
+            <div class="input-group">
+                <input type="text" class="form-control" name="search_text" placeholder="입력한 검색어를 통해 RSS Feed 생성">
+                <div class="input-group-prepend">
+                    <button class="btn btn-outline-secondary" type="submit">Create</button>
+                </div>
+            </div>
+
         </div>
     </div>
 </form>
 
-    {% if after_search %}
-        <div>
-            <p>{{ after_search }}</p>
-            <p>{{ not_matched }}</p>
-            <form action="/articles/search/" method="POST">
-            {% csrf_token %}
-                <input type="hidden" name="keyword" value="{{ keyword }}">
-                <input type="text" name="check_keyword">
-                <button type="submit" name="{{ keyword }}">검색어 재입력</button>
-            </form>
-        </div>
-    {% endif %}
+<!-- 현재 제공하고 있는 피드(키워드/작가) 목록 -->
+<div class="row justify-content-md-center" style="margin-top: 20px;">
+    <div class="container text-black-50 text-center" style="width: 90%;">
 
+        <p>검색어 Feed :
+            {% for keyword in keywords %}
+                <a href="{% url 'articles:feeds-keyword' keyword.keyword %}">{{ keyword.keyword }}</a>,
+            {% endfor %}</p>
+        <p>작가 Feed :
+            {% for writer in writers %}
+                <a href="{% url 'articles:feeds-writer' writer.user_id %}">{{ writer.media_name }}(@{{ writer.user_id }})</a>,
+            {% endfor %}</p>
 
+    </div>
+</div>
 
-
+{% block content %}
+{% endblock %}
 </body>
 </html>
