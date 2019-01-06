@@ -24,7 +24,11 @@ SECRET_KEY = '$9q#^3hr=a)i0hbm2)0coy7yl14##lued5w!*chbt7zz4a=p7o'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    'localhost',
+    '127.0.0.1',
+    '.amazonaws.com',
+]
 
 AUTH_USER_MODEL = 'members.User'
 # Application definition

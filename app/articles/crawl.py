@@ -1,87 +1,74 @@
-import asyncio
 import os
-import time
-
-import pyppeteer
-import requests
-from requests_html import HTMLSession
-from selenium import webdriver
-from selenium.common.exceptions import ElementNotVisibleException
 import asyncio
 import re
 import time
-
 import aiohttp
+import requests
+from selenium import webdriver
+from selenium.common.exceptions import ElementNotVisibleException, NoSuchElementException
 from bs4 import BeautifulSoup
 
 from .models import Article, Keyword, Writer
 from config.settings import BASE_DIR
 
 
-# class MyHTMLSession(HTMLSession):
-#     @property
-#     def browser(self):
-#         if not hasattr(self, "_browser"):
-#             # self.loop = asyncio.get_event_loop()
-#             self.loop = asyncio.new_event_loop()
-#             asyncio.set_event_loop(self.loop)
-#             self._browser = self.loop.run_until_complete(pyppeteer.launch(headless=True, args=['--no-sandbox']))
-#         return self._browser
-
-
 # 검색한 키워드를 인자로 받아 검색결과 html 페이지를 생성
-def crawl(keyword=None, writer=None, k=None):
-    html = crawl_html(keyword, writer)
+def crawl(keyword=None, writer=None):
+    html = get_html(keyword, writer)
 
+    # 검색어가 정확히 입력된다면 article, writer, keyword 저장 후 True
     if html:
-        href_list = get_href_to_detail(html)
-        save_article(href_list, keyword, k=k)
+        href_list = get_href_for_detail(html)
+        # save_article 에서 writer id 를 href 를 통해 얻기때문에 keyword 만 전달
+        save_article(href_list, keyword)
         return True
+
+    # 검색결과가 없는 경우 False
     else:
         return False
 
 
 # selenium 으로 html 문자열을 리턴(selenium 코드는 여기만 해당됨)
-def crawl_html(word=None, writer=None):
-    if word:
-        chrome_driver_path = f'{os.path.join(os.path.join(BASE_DIR))}/chromedriver'
-        driver = webdriver.Chrome(chrome_driver_path)
-        search_word = word
+def get_html(keyword=None, writer=None):
+    # headless chrome driver 설정
+    chrome_driver_path = f'{os.path.join(os.path.join(BASE_DIR))}/chromedriver'
+    options = webdriver.ChromeOptions()
+    options.add_argument('headless')
+    options.add_argument('window-size=1920x1080')
+    options.add_argument("disable-gpu")
+    driver = webdriver.Chrome(chrome_driver_path, chrome_options=options)
 
-        url = f'https://brunch.co.kr/search?q={search_word}'
-        driver.get(url)
-        time.sleep(2)
-
-        html = ''
-        try:
-            driver.find_elements_by_css_selector('span.search_option > a')[1].click()  # 최신순 정렬 클릭
+    try:
+        # 키워드로 검색할 때는 최신순으로 정렬된 페이지를 크롤링
+        if keyword:
+            url = f'https://brunch.co.kr/search?q={keyword}'
+            driver.get(url)
             time.sleep(2)
-            html = driver.page_source
-        except ElementNotVisibleException:  # try: find_element 가 없을 때
-            pass
-    elif writer:
-        # loop = asyncio.new_event_loop()
-        # # asyncio.set_event_loop(loop)
-        r = HTMLSession().get(f'https://brunch.co.kr/@{writer}#articles')
-        r.html.render(retries=100, scrolldown=100)
-        html = r.html.html
+            driver.find_elements_by_css_selector('span.search_option > a')[1].click()  # 최신순 정렬 클릭
+            time.sleep(2)  # 최신순으로 누르고 기다리는 시간
+        # 작가의 글 페이지를 크롤링
+        elif writer:
+            url = f'https://brunch.co.kr/@{writer}#articles'
+            driver.get(url)
+            time.sleep(2)
+            driver.find_element_by_css_selector('div.wrap_article_list')
+        html = driver.page_source
 
-        # driver.get(f'https://brunch.co.kr/@{writer}#articles')
-        # html = driver.page_source
-        # time.sleep(1)
+    # find_element 실패 시 Exception -> empty 'html'
+    except (NoSuchElementException, ElementNotVisibleException):
+        html = ''
 
     driver.close()
     return html
 
 
 # 포스트 페이지로 넘어가는 링크(아이디+글번호)를 리스트에 담에 리턴
-def get_href_to_detail(html):
+def get_href_for_detail(html):
     soup = BeautifulSoup(html, 'lxml')
     li_article = soup.select('div.wrap_article_list > ul > li')
 
     href_list = []
     for li in li_article:
-        # a = li.find('a', href=True)
         a = li.select_one('li > a.link_post')
         href_list.append(a['href'])
 
@@ -93,8 +80,8 @@ def get_href_to_detail(html):
 # - 데이터 중복검사
 # - 상세페이지 크롤링
 # - 데이터 저장
-def save_article(href_list, keyword=None, k=None):
-    href_list = href_list[:k]  # 테스트용, 3개만 긁자.
+def save_article(href_list, keyword=None):
+    href_list = href_list[:3]  # 테스트용, 3개만 긁자.
 
     obj_keyword, created = Keyword.objects.get_or_create(keyword=keyword)
     new_href_list = [new_href for new_href in href_list]
@@ -111,13 +98,34 @@ def save_article(href_list, keyword=None, k=None):
 
     s = time.time()
 
-    # 해당 포스트 페이지 방문 후 크롤링 및 저장
-    brunch_url = 'https://brunch.co.kr'
-    for href in new_href_list:
-        url = brunch_url + href
-        r = requests.get(url)
+    # ---------비동기화(asyncio) X--------------------------------------
+    # brunch_url = 'https://brunch.co.kr'
+    # for href in new_href_list:
+    #     url = brunch_url + href
+    #     r = requests.get(url)
+    #     soup = BeautifulSoup(r.text, 'lxml')
+    # ----------------------------------------------------------------
 
-        soup = BeautifulSoup(r.text, 'lxml')
+    # ---------비동기화(asyncio) O--------------------------------------
+    async def detail_crawl(url, new_href):
+
+        print(f'Send request .. {url}')
+
+        # ----------requests module 이용-------------
+        # loop = asyncio.get_event_loop()
+        # r = await loop.run_in_executor(None, requests.get, url)
+        # soup = BeautifulSoup(r.text, 'lxml')
+        # ------------------------------------------
+
+        # -----------aiohttp module 이용-------------
+        async with aiohttp.ClientSession() as sess:
+            async with sess.get(url) as res:
+                r = await res.text()
+        soup = BeautifulSoup(r, 'lxml')
+        # ------------------------------------------
+
+        print(f'Get response .. {url}')
+
         title = soup.select_one('div.cover_cell').text
         content = soup.select_one('div.wrap_body').prettify()
         media_name = soup.find('meta', {'name': 'article:media_name'})['content']
@@ -130,72 +138,43 @@ def save_article(href_list, keyword=None, k=None):
             soup.find('meta', {'property': 'og:url'})['content']
         )[0]
 
+        # writer(obj) 생성 및 할당
         writer, _ = Writer.objects.get_or_create(
             user_id=user_id,
             media_name=media_name
         )
 
+        # article 생성
         article_without_keyword = Article.objects.create(
             title=title,
             content=content,
-            href=href,
+            href=new_href,
             published_time=published_time,
             text_id=text_id,
             writer=writer
         )
+
+        # article 에 keyword 추가(ManyToMany)
         article_without_keyword.keyword.add(obj_keyword)
 
-    # async def test_async(url, new_href):
-    #     print(f'Send request .. {url}')
-    #     # loop = asyncio.get_event_loop()
-    #     # r = await loop.run_in_executor(None, requests.get, url)
-    #
-    #     async with aiohttp.ClientSession() as sess:
-    #         async with sess.get(url) as res:
-    #             r = await res.text()
-    #
-    #     print(f'Get response .. {url}')
-    #
-    #     soup = BeautifulSoup(r, 'lxml')
-    #     # soup = BeautifulSoup(r.text, 'lxml')
-    #     title = soup.select_one('div.cover_cell').text
-    #     content = soup.select_one('div.wrap_body').prettify()
-    #     media_name = soup.find('meta', {'name': 'article:media_name'})['content']
-    #     published_time = re.findall(
-    #         r'(\S+)\+',
-    #         soup.find('meta', {'property': 'article:published_time'})['content'],
-    #     )[0]
-    #     user_id, text_id = re.findall(
-    #         r'/@(\S+)/(\d+)',
-    #         soup.find('meta', {'property': 'og:url'})['content']
-    #     )[0]
-    #
-    #     writer, _ = Writer.objects.get_or_create(
-    #         user_id=user_id,
-    #         media_name=media_name
-    #     )
-    #     article_without_keyword = Article.objects.create(
-    #         title=title,
-    #         content=content,
-    #         href=new_href,
-    #         published_time=published_time,
-    #         text_id=text_id,
-    #         writer=writer
-    #     )
-    #     article_without_keyword.keyword.add(obj_keyword)
-    #
-    #     print(f'저장 완료 {url}')
-    #
-    # async def test_main():
-    #     brunch_url = 'https://brunch.co.kr'
-    #     futures = [asyncio.ensure_future(test_async(
-    #         brunch_url + new_href, new_href)) for new_href in new_href_list]
-    #
-    #     await asyncio.gather(*futures)
-    #
-    # loop = asyncio.new_event_loop()
-    # asyncio.set_event_loop(loop)
-    # loop.run_until_complete(test_main())
-    #
-    # e = time.time()
-    # print('상세페이지 크롤링 시간', e - s)
+        print(f'저장 완료 {url}')
+
+    # futures 에 Task 할당(url, 중복검사 완료된 href(new_href))
+    async def create_task_async():
+        brunch_url = 'https://brunch.co.kr'
+        futures = [asyncio.ensure_future(
+            detail_crawl(
+                brunch_url + new_href, new_href
+            )
+        )
+            for new_href in new_href_list]
+
+        await asyncio.gather(*futures)
+
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+    loop.run_until_complete(create_task_async())
+    # ----------------------------------------------------------------
+
+    e = time.time()
+    print('상세페이지 크롤링 시간', e - s)
