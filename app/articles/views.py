@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect
 
-from .crawl import crawl
+from articles.tests import Crawler
+from .crawler import crawl
 from .models import Article, Keyword, Writer
 
 
@@ -28,12 +29,12 @@ def index(request):
     # crawl() 은 성공 시 True, 실패 시 False 를 return
     if search_text:
         if search_option == k:
-            result = crawl(keyword=search_text)
-            if result:  # keword feed 생성 및 redirect to Feed page
+            crawler = Crawler(keyword=search_text)
+            if crawler.result:  # keword feed 생성 및 redirect to Feed page
                 return redirect(f'articles:feeds-{search_option}', keyword=search_text)
         elif search_option == w:
-            result = crawl(writer=search_text)
-            if result:  # writer feed 생성 및 redirect to Feed page
+            crawler = Crawler(writer=search_text)
+            if crawler.result:  # writer feed 생성 및 redirect to Feed page
                 return redirect(f'articles:feeds-{search_option}', user_id=search_text)
 
         context['no_result'] = search_text

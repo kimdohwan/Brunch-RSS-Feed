@@ -25,4 +25,3 @@ class Article(models.Model):
         Keyword,
         related_name='articles',
     )
-
