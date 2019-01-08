@@ -11,12 +11,6 @@
 </head>
 <body>
 
-<!-- 크롤링 후 검색결과가 없을 때 띄우는 Alert -->
-{% if no_result %}
-    <div class="alert alert-danger" role="alert">
-        <h4 class="alert-heading text-center">'{{ no_result }}' 검색결과가 없습니다</h4>
-    </div>
-{% endif %}
 
 <!-- 인덱스 링크 -->
 <div class="text-center" style="margin-top: 200px; margin-bottom: 30px;">
@@ -26,7 +20,7 @@
 </div>
 
 <!-- 검색어 받는 form -->
-<form action="">
+<form action="{% url 'articles:search' %}">
     <div class="row justify-content-md-center text-black-50">
         <div class="container" style="max-width: 700px;">
 
@@ -52,6 +46,12 @@
     </div>
 </form>
 
+{% if messages %}
+    {% for message in messages %}
+        <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %} text-center" role="alert">{{ message }}</div>
+    {% endfor %}
+{% endif %}
+
 <!-- 현재 제공하고 있는 피드(키워드/작가) 목록 -->
 <div class="row justify-content-md-center" style="margin-top: 20px;">
     <div class="container text-black-50 text-center" style="width: 90%;">
@@ -60,15 +60,13 @@
             {% for keyword in keywords %}
                 <a href="{% url 'articles:feeds-keyword' keyword.keyword %}">{{ keyword.keyword }}</a>,
             {% endfor %}</p>
-        <p>작가 Feed :
+        <p>추천 작가 Feed(@id - 구독자 수):
             {% for writer in writers %}
-                <a href="{% url 'articles:feeds-writer' writer.user_id %}">{{ writer.media_name }}(@{{ writer.user_id }})</a>,
+                <a href="{% url 'articles:feeds-writer' writer.user_id %}">{{ writer.media_name }}(@{{ writer.user_id }} - {{ writer.num_subscription }})</a>,
             {% endfor %}</p>
 
     </div>
 </div>
 
-{% block content %}
-{% endblock %}
 </body>
 </html>
