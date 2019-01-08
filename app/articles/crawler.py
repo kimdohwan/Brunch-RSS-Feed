@@ -1,180 +1,200 @@
-import os
 import asyncio
 import re
-import time
-import aiohttp
-import requests
-from selenium import webdriver
-from selenium.common.exceptions import ElementNotVisibleException, NoSuchElementException
-from bs4 import BeautifulSoup
 
-from .models import Article, Keyword, Writer
+import aiohttp
+import os
+import time
+
+from bs4 import BeautifulSoup
+from selenium import webdriver
+from selenium.common.exceptions import NoSuchElementException, ElementNotVisibleException
+
+from .models import Keyword, Article, Writer
 from config.settings import BASE_DIR
 
 
-# 검색한 키워드를 인자로 받아 검색결과 html 페이지를 생성
-def crawl(keyword=None, writer=None):
-    html = get_html(keyword, writer)
+class Crawler:
+    def __init__(self, keyword=None, writer=None):
+        self.keyword = keyword
+        self.user_id = writer
 
-    # 검색어가 정확히 입력된다면 article, writer, keyword 저장 후 True
-    if html:
-        href_list = get_href_for_detail(html)
-        # save_article 에서 writer id 를 href 를 통해 얻기때문에 keyword 만 전달
-        save_article(href_list, keyword)
-        return True
+        self.result = self.crawl()  # True or False 로 크롤링 결과 리턴
 
-    # 검색결과가 없는 경우 False
-    else:
-        return False
+        self.driver = None
+        self.html = None
+        self.article_txid_list = None
+        self.checked_article_txid_list = None
+        self.obj_keyword = None  # keyword 검색 시, manytomany 에 추가 시켜줄 keyword 객체
 
+    def crawl(self):
+        self.get_html()  # self.html 셋팅
 
-# selenium 으로 html 문자열을 리턴(selenium 코드는 여기만 해당됨)
-def get_html(keyword=None, writer=None):
-    # headless chrome driver 설정
-    chrome_driver_path = f'{os.path.join(os.path.join(BASE_DIR))}/chromedriver'
-    options = webdriver.ChromeOptions()
-    options.add_argument('headless')
-    options.add_argument('window-size=1920x1080')
-    options.add_argument("disable-gpu")
-    driver = webdriver.Chrome(chrome_driver_path, chrome_options=options)
+        # 검색어가 정확히 입력된다면 article, writer, keyword 저장 후 True
+        if self.html:  # 검색결과가 존재한다면
+            self.get_article_txid_for_detail()  # 각 글들의 정보(아티클 링크)를 크롤링 한 뒤
 
-    try:
-        # 키워드로 검색할 때는 최신순으로 정렬된 페이지를 크롤링
-        if keyword:
-            url = f'https://brunch.co.kr/search?q={keyword}'
-            driver.get(url)
-            time.sleep(2)
-            driver.find_elements_by_css_selector('span.search_option > a')[1].click()  # 최신순 정렬 클릭
-            time.sleep(2)  # 최신순으로 누르고 기다리는 시간
-        # 작가의 글 페이지를 크롤링
-        elif writer:
-            url = f'https://brunch.co.kr/@{writer}#articles'
-            driver.get(url)
-            time.sleep(2)
-            driver.find_element_by_css_selector('div.wrap_article_list')
-        html = driver.page_source
+            # request 요청 제한을 위해 한번에 최대 5개만 크롤링하도록 임의로 설정
+            # 여기에 제한을 두면 최신 글만 계속 업데이트 된다
+            self.article_txid_list = self.article_txid_list[:5]
 
-    # find_element 실패 시 Exception -> empty 'html'
-    except (NoSuchElementException, ElementNotVisibleException):
-        html = ''
+            self.check_duplicate()  # 중복검사를 통해 이미 저장한 아티클은 제외한다.
 
-    driver.close()
-    return html
+            # # 여기에 제한을 두면 예전 글과 최신글이 동시에 계속 업데이트 된다
+            # self.article_txid_list = self.article_txid_list[:5]
 
+            self.crawl_detail_and_save()  # 상세페이지의 내용을 크롤링한다.
+            return True
 
-# 포스트 페이지로 넘어가는 링크(아이디+글번호)를 리스트에 담에 리턴
-def get_href_for_detail(html):
-    soup = BeautifulSoup(html, 'lxml')
-    li_article = soup.select('div.wrap_article_list > ul > li')
+        else:  # 검색결과가 없는 경우 False
+            return False
 
-    href_list = []
-    for li in li_article:
-        a = li.select_one('li > a.link_post')
-        href_list.append(a['href'])
+    # 검색 결과 목록을 크롤링
+    def get_html(self):
+        self.set_headless_driver()  # 셀레니움 드라이버 셋팅
 
-    return href_list
+        try:
+            if self.keyword:  # 키워드로 검색할 때는 최신순으로 정렬된 페이지를 크롤링
+                url = f'https://brunch.co.kr/search?q={self.keyword}'
+                self.driver.get(url)
+                time.sleep(2)
+                self.driver.find_elements_by_css_selector('span.search_option > a')[1].click()  # 최신순 정렬 클릭
+                time.sleep(2)  # 최신순으로 누르고 기다리는 시간
 
+            elif self.user_id:  # 작가의 글 페이지를 크롤링
+                url = f'https://brunch.co.kr/@{self.user_id}#articles'
+                self.driver.get(url)
+                time.sleep(1)
+                self.driver.find_element_by_css_selector('div.wrap_article_list')
+            html = self.driver.page_source
 
-# 본문내용과 제목을 포스트에 저장
-# 이 함수에 너무 많은 기능을 넣은건가?
-# - 데이터 중복검사
-# - 상세페이지 크롤링
-# - 데이터 저장
-def save_article(href_list, keyword=None):
-    href_list = href_list[:3]  # 테스트용, 3개만 긁자.
+        except (NoSuchElementException, ElementNotVisibleException):
+            html = ''  # find_element 실패 시 Exception -> empty 'html'
 
-    obj_keyword, created = Keyword.objects.get_or_create(keyword=keyword)
-    new_href_list = [new_href for new_href in href_list]
+        self.driver.close()
+        self.html = html
 
-    # 이미 존재(저장되어있는)하는 포스트라면 항목 제거
-    for href in href_list:
-        obj_article = Article.objects.filter(href=href)
-        if obj_article:
-            new_href_list.remove(href)
-            # 포스트가 현재 검색된 키워드를 가지지 않았다면 키워드는 추가시켜준다
-            if not obj_article[0].keyword.filter(keyword=keyword):
-                obj_article[0].keyword.add(obj_keyword)
-                obj_article[0].save()
+    # 글 상세 페이지로 넘어갈 때 사용할 article_txid(아이디+글번호)를 리스트로 담아 리턴
+    def get_article_txid_for_detail(self):
+        soup = BeautifulSoup(self.html, 'lxml')
+        li_article = soup.select('div.wrap_article_list > ul > li')
 
-    s = time.time()
+        article_txid_list = []
+        for li in li_article:
+            article_txid = li['data-articleuid']
+            article_txid_list.append(article_txid)
 
-    # ---------비동기화(asyncio) X--------------------------------------
-    # brunch_url = 'https://brunch.co.kr'
-    # for href in new_href_list:
-    #     url = brunch_url + href
-    #     r = requests.get(url)
-    #     soup = BeautifulSoup(r.text, 'lxml')
-    # ----------------------------------------------------------------
+        self.article_txid_list = article_txid_list
 
-    # ---------비동기화(asyncio) O--------------------------------------
-    async def detail_crawl(url, new_href):
+    def check_duplicate(self):
+        # 중복 체크 후 새로 추가할 리스트
+        checked_article_txid_list = [checked_article_txid for checked_article_txid in self.article_txid_list]
+        # 이미 데이터에 존재하는 아티클
 
-        print(f'Send request .. {url}')
+        for article_txid in self.article_txid_list:
+            obj_article = Article.objects.filter(article_txid=article_txid)
+            # 만약 존재하는 아티클이라면
+            if obj_article:
+                # 크롤링 할 리스트에서 제외해주고
+                checked_article_txid_list.remove(article_txid)
 
-        # ----------requests module 이용-------------
-        # loop = asyncio.get_event_loop()
-        # r = await loop.run_in_executor(None, requests.get, url)
-        # soup = BeautifulSoup(r.text, 'lxml')
-        # ------------------------------------------
+        self.checked_article_txid_list = checked_article_txid_list
 
-        # -----------aiohttp module 이용-------------
-        async with aiohttp.ClientSession() as sess:
-            async with sess.get(url) as res:
-                r = await res.text()
-        soup = BeautifulSoup(r, 'lxml')
-        # ------------------------------------------
+        # 키워드 검색일 경우 키워드를 저장
+        if self.keyword:
+            existed_article_txid = set(self.article_txid_list) - set(self.checked_article_txid_list)
+            existed_article = [Article.objects.get(article_txid=article_txid) for article_txid in existed_article_txid]
+            self.obj_keyword, _ = Keyword.objects.get_or_create(keyword=self.keyword)
 
-        print(f'Get response .. {url}')
+            for article in existed_article:
+                # 이미 존재하는 아티클에 키워드가 추가되어있지 않다면 키워드를 추가한다.
+                if not article.keyword.filter(keyword=self.keyword):
+                    article.keyword.add(self.obj_keyword)
+                    article.save()
 
-        title = soup.select_one('div.cover_cell').text
-        content = soup.select_one('div.wrap_body').prettify()
-        media_name = soup.find('meta', {'name': 'article:media_name'})['content']
-        published_time = re.findall(
-            r'(\S+)\+',
-            soup.find('meta', {'property': 'article:published_time'})['content'],
-        )[0]
-        user_id, text_id = re.findall(
-            r'/@(\S+)/(\d+)',
-            soup.find('meta', {'property': 'og:url'})['content']
-        )[0]
+    # 상세페이지로 보내는 요청을 비동기적으로 구현
+    # 각각의 상세페이지에서 아티클 정보 저장
+    def crawl_detail_and_save(self):
+        s = time.time()
 
-        # writer(obj) 생성 및 할당
-        writer, _ = Writer.objects.get_or_create(
-            user_id=user_id,
-            media_name=media_name
-        )
+        async def detail_crawl(url, article_txid):
+            print(f'Send request .. {url}')
 
-        # article 생성
-        article_without_keyword = Article.objects.create(
-            title=title,
-            content=content,
-            href=new_href,
-            published_time=published_time,
-            text_id=text_id,
-            writer=writer
-        )
+            async with aiohttp.ClientSession() as sess:
+                async with sess.get(url) as res:
+                    r = await res.text()
+            soup = BeautifulSoup(r, 'lxml')
 
-        # article 에 keyword 추가(ManyToMany)
-        article_without_keyword.keyword.add(obj_keyword)
+            print(f'Get response .. {url}')
 
-        print(f'저장 완료 {url}')
+            title = soup.find('meta', {'property': 'og:title'})['content']
+            content = soup.select_one('div.wrap_body').prettify()
+            media_name = soup.find('meta', {'name': 'article:media_name'})['content']
+            # article_uid = soup.find()
+            num_subscription = int(''.join(re.findall(
+                r'\w',
+                soup.select_one('span.num_subscription').text
+            )))
+            published_time = re.findall(
+                r'(\S+)\+',
+                soup.find('meta', {'property': 'article:published_time'})['content'],
+            )[0]
+            user_id, text_id = re.findall(
+                r'/@(\S+)/(\d+)',
+                soup.find('meta', {'property': 'og:url'})['content']
+            )[0]
 
-    # futures 에 Task 할당(url, 중복검사 완료된 href(new_href))
-    async def create_task_async():
-        brunch_url = 'https://brunch.co.kr'
-        futures = [asyncio.ensure_future(
-            detail_crawl(
-                brunch_url + new_href, new_href
+            # writer(obj) 생성 및 할당
+            writer, _ = Writer.objects.get_or_create(
+                user_id=user_id,
+                media_name=media_name,
+                num_subscription=num_subscription,
+
             )
-        )
-            for new_href in new_href_list]
 
-        await asyncio.gather(*futures)
+            # article 생성
+            article_without_keyword = Article.objects.create(
+                title=title,
+                content=content,
+                article_txid=article_txid,
+                published_time=published_time,
+                text_id=text_id,
+                writer=writer
+            )
 
-    loop = asyncio.new_event_loop()
-    asyncio.set_event_loop(loop)
-    loop.run_until_complete(create_task_async())
-    # ----------------------------------------------------------------
+            # article 에 keyword 추가(ManyToMany) - keyword 검색일 경우에 한하여
+            if self.keyword:
+                article_without_keyword.keyword.add(self.obj_keyword)
 
-    e = time.time()
-    print('상세페이지 크롤링 시간', e - s)
+            print(f'저장 완료 {url}')
+
+        # futures 에 Task 할당(url, 중복검사 완료된 checked_article_txid)
+        async def create_task_async():
+            brunch_url = 'https://brunch.co.kr/'
+
+            # article_txid 문자열 변환을 통해 url 링크 생성(detail_crawl 의 인자가 됨)
+            futures = [asyncio.ensure_future(
+                detail_crawl(
+                    brunch_url + '@@' + checked_article.replace('_', '/'), checked_article
+                )
+            )
+                for checked_article in self.checked_article_txid_list]
+
+            await asyncio.gather(*futures)
+
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        loop.run_until_complete(create_task_async())
+
+        e = time.time()
+        print('상세페이지 크롤링 시간', e - s)
+
+    # Headless Chrome 으로 selenium driver 설정
+    def set_headless_driver(self):
+        chrome_driver_path = f'{os.path.join(os.path.join(BASE_DIR))}/chromedriver'
+        options = webdriver.ChromeOptions()
+        options.add_argument('headless')
+        options.add_argument('window-size=1920x1080')
+        options.add_argument("disable-gpu")
+        driver = webdriver.Chrome(chrome_driver_path, chrome_options=options)
+
+        self.driver = driver
