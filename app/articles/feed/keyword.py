@@ -5,14 +5,14 @@ from ..models import Keyword
 
 
 # django Feed 를 사용, get_object() 함수로 검색어를 items() 에 전달
-class KewordFeed(CustomFeed):
+class KeywordFeed(CustomFeed):
     title = ''
     brunch_title = "Brunch 키워드: "
     link = "/feeds/keyword/"
     description = "등록한 검색어의 최신글들을 업데이트합니다"
 
     def items(self, keyword):
-        # Keword 에 연결된(ManyToMany) Article
+        # Keyword 에 연결된(ManyToMany) Article
         return Keyword.objects.get(keyword=keyword).articles.all().order_by('-published_time')
 
     def item_title(self, item):
