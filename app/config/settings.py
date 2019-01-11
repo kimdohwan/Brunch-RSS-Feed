@@ -12,10 +12,13 @@ https://docs.djangoproject.com/en/2.1/ref/settings/
 
 import os
 
+# directory 'app'
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+# directory 'Project'
 ROOT_DIR = os.path.dirname(BASE_DIR)
 
-TEMPLATE_FILES = ['templates', ]
+TEMPLATE_DIR = os.path.join(BASE_DIR, 'templates')
+STATIC_DIR = os.path.join(BASE_DIR, 'static')
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.1/howto/deployment/checklist/
@@ -60,11 +63,15 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'config.urls'
 
+STATICFILES_DIRS = [
+    STATIC_DIR,
+]
+
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [
-            TEMPLATE_FILES,
+            TEMPLATE_DIR,
         ],
         'APP_DIRS': True,
         'OPTIONS': {
