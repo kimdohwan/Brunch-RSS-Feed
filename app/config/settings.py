@@ -12,11 +12,14 @@ https://docs.djangoproject.com/en/2.1/ref/settings/
 
 import os
 
+# directory 'app'
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+# directory 'Project'
 ROOT_DIR = os.path.dirname(BASE_DIR)
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/2.1/howto/deployment/checklist/
+TEMPLATE_DIR = os.path.join(BASE_DIR, 'templates')
+STATIC_DIR = os.path.join(BASE_DIR, 'static')
+STATIC_ROOT = os.path.join(ROOT_DIR, '.static')
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = '$9q#^3hr=a)i0hbm2)0coy7yl14##lued5w!*chbt7zz4a=p7o'
@@ -31,7 +34,6 @@ ALLOWED_HOSTS = [
 ]
 
 AUTH_USER_MODEL = 'members.User'
-# Application definition
 
 INSTALLED_APPS = [
     'members',
@@ -58,11 +60,15 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'config.urls'
 
+STATICFILES_DIRS = [
+    STATIC_DIR,
+]
+
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [
-            'templates',
+            TEMPLATE_DIR,
         ],
         'APP_DIRS': True,
         'OPTIONS': {
@@ -78,7 +84,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'config.wsgi.application'
 
-
 # Database
 # https://docs.djangoproject.com/en/2.1/ref/settings/#databases
 
@@ -88,7 +93,6 @@ DATABASES = {
         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/2.1/ref/settings/#auth-password-validators
@@ -108,7 +112,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # Internationalization
 # https://docs.djangoproject.com/en/2.1/topics/i18n/
 
@@ -121,7 +124,6 @@ USE_I18N = True
 USE_L10N = True
 
 USE_TZ = False
-
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.1/howto/static-files/

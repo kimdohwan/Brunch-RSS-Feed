@@ -13,11 +13,16 @@
 
 
 <!-- 인덱스 링크 -->
-<div class="text-center" style="margin-top: 200px; margin-bottom: 30px;">
+<div class="text-center" style="">
+
+    {% load static %}
+    <img src="{% static 'images/brunch.png' %}">
+
     <a class="text-black-50" href="{% url 'articles:index' %}">
         <h2>Brunch RSS Feed</h2>
     </a>
 </div>
+
 
 <!-- 검색어 받는 form -->
 <form action="{% url 'articles:search' %}">
