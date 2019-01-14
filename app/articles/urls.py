@@ -12,4 +12,4 @@ urlpatterns = [
     path('detail/<pk>/', article_detail, name='article-detail'),
     path('feeds/keyword/<keyword>/', KeywordFeed(), name='feeds-keyword'),
     path('feeds/writer/<user_id>/', WriterFeed(), name='feeds-writer'),
-] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+]  # + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
