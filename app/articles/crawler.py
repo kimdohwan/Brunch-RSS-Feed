@@ -192,9 +192,10 @@ class Crawler:
     def set_headless_driver(self):
         chrome_driver_path = f'{os.path.join(os.path.join(BASE_DIR))}/chromedriver'
         options = webdriver.ChromeOptions()
-        options.add_argument('headless')
-        options.add_argument('window-size=1920x1080')
-        options.add_argument("disable-gpu")
+        options.add_argument('--headless')
+        options.add_argument('--no-sandbox')
+        options.add_argument('--window-size=1920x1080')
+        options.add_argument("--disable-gpu")
         driver = webdriver.Chrome(chrome_driver_path, chrome_options=options)
 
         self.driver = driver
