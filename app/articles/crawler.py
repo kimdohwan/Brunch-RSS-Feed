@@ -27,22 +27,26 @@ class Crawler:
         self.obj_keyword = None  # keyword 검색 시, manytomany 에 추가 시켜줄 keyword 객체
 
     def crawl(self):
+
+        html_s = time.time()
         self.get_html()  # self.html 셋팅
+        html_e = time.time()
+        print('검색결과 페이지 크롤링 시간', html_e - html_s)
 
         # 검색어가 정확히 입력된다면 article, writer, keyword 저장 후 True
         if self.html:  # 검색결과가 존재한다면
             self.get_article_txid_for_detail()  # 각 글들의 정보(아티클 링크)를 크롤링 한 뒤
 
-            # request 요청 제한을 위해 한번에 최대 5개만 크롤링하도록 임의로 설정
-            # 여기에 제한을 두면 최신 글만 계속 업데이트 된다
+            # request 수 제한을 위해 최신글 5개만 크롤링하도록 임의로 설정
             self.article_txid_list = self.article_txid_list[:5]
 
             self.check_duplicate()  # 중복검사를 통해 이미 저장한 아티클은 제외한다.
 
-            # # 여기에 제한을 두면 예전 글과 최신글이 동시에 계속 업데이트 된다
+            # 예전 글을 포함하여 업데이트 하기위한 임의 설정
             # self.article_txid_list = self.article_txid_list[:5]
 
             self.crawl_detail_and_save()  # 상세페이지의 내용을 크롤링한다.
+
             return True
 
         else:  # 검색결과가 없는 경우 False
@@ -58,12 +62,11 @@ class Crawler:
                 self.driver.get(url)
                 time.sleep(2)
                 self.driver.find_elements_by_css_selector('span.search_option > a')[1].click()  # 최신순 정렬 클릭
-                time.sleep(2)  # 최신순으로 누르고 기다리는 시간
+                time.sleep(.5)  # 최신순으로 누르고 기다리는 시간
 
             elif self.user_id:  # 작가의 글 페이지를 크롤링
                 url = f'https://brunch.co.kr/@{self.user_id}#articles'
                 self.driver.get(url)
-                time.sleep(1)
                 self.driver.find_element_by_css_selector('div.wrap_article_list')
             html = self.driver.page_source
 
@@ -114,8 +117,6 @@ class Crawler:
     # 상세페이지로 보내는 요청을 비동기적으로 구현
     # 각각의 상세페이지에서 아티클 정보 저장
     def crawl_detail_and_save(self):
-        s = time.time()
-
         async def detail_crawl(url, article_txid):
             print(f'Send request .. {url}')
 
@@ -129,11 +130,22 @@ class Crawler:
             title = soup.find('meta', {'property': 'og:title'})['content']
             content = soup.select_one('div.wrap_body').prettify()
             media_name = soup.find('meta', {'name': 'article:media_name'})['content']
-            # article_uid = soup.find()
-            num_subscription = int(''.join(re.findall(
-                r'\w',
-                soup.select_one('span.num_subscription').text
-            )))
+
+            try:  # 구독자 수 크롤링
+                num_subscription = int(''.join(re.findall(
+                    r'\w',
+                    soup.select_one('span.num_subscription').text
+                )))
+
+            # 브런치에서 구독자 수가 1만을 초과하는 경우 '4.3만' 과 같이 표기된다.
+            # 이때 int 형변환 시 '.' 과 '만' 때문에 ValueError 발생하므로 적절한 예외 처리 필요
+            #   - '만' 을 '0000'으로 replace
+            #   - 소수점 밑자리 숫자는 생략 처리
+            except ValueError:
+                char_num_subscription = soup.select_one('span.num_subscription').text
+                trunc_part = ''.join(re.findall(r'.\d+', char_num_subscription))
+                num_subscription = int(char_num_subscription.replace('만', '0000').replace(trunc_part, ''))
+
             published_time = re.findall(
                 r'(\S+)\+',
                 soup.find('meta', {'property': 'article:published_time'})['content'],
@@ -143,12 +155,12 @@ class Crawler:
                 soup.find('meta', {'property': 'og:url'})['content']
             )[0]
 
-            # writer(obj) 생성 및 할당
-            writer, _ = Writer.objects.get_or_create(
+            writer, _ = Writer.objects.update_or_create(
                 user_id=user_id,
-                media_name=media_name,
-                num_subscription=num_subscription,
-
+                defaults={
+                    'media_name': media_name,
+                    'num_subscription': num_subscription
+                }
             )
 
             # article 생성
@@ -184,9 +196,6 @@ class Crawler:
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
         loop.run_until_complete(create_task_async())
-
-        e = time.time()
-        print('상세페이지 크롤링 시간', e - s)
 
     # Headless Chrome 으로 selenium driver 설정
     def set_headless_driver(self):
