@@ -1,0 +1,44 @@
+FROM        ubuntu:17.10
+MAINTAINER  dosio0102@gmail.com
+RUN         apt -y update && apt -y dist-upgrade
+
+
+RUN         apt -y install zsh curl git
+RUN         curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh | bash
+#뒤에 배쉬로 실행한다는 command '| bash'
+RUN         chsh -s /usr/bin/zsh
+#run 명령어 쓸 때 zsh을 실행하므로 여기서 입력해주는 changeshell은 의미없음.
+#교육상 입력? 위 명령어는 로그인 했을 때 적용되는 명령어.
+#docker는 로그인되서 돌아가는 체제라고 보기 힘들기에 다른 경우이다
+
+RUN         curl -L https://github.com/pyenv/pyenv-installer/raw/master/bin/pyenv-installer | bash
+RUN         apt install -y make build-essential libssl-dev zlib1g-dev libbz2-dev \
+libreadline-dev libsqlite3-dev wget curl llvm libncurses5-dev libncursesw5-dev \
+xz-utils tk-dev libffi-dev
+
+RUN         echo 'export PATH="/root/.pyenv/bin:$PATH"' >> ~/.zshrc
+RUN         echo 'eval "$(pyenv init -)"' >> ~/.zshrc
+RUN         echo 'eval "$(pyenv virtualenv-init -)"' >> ~/.zshrc
+#pyenv not found: zshrc profile을 변경했기때문에 나갔다와야함
+
+ENV         PATH /root/.pyenv/bin:$PATH
+RUN         eval "$(pyenv init -)"
+RUN         eval "$(pyenv virtualenv-init -)"
+RUN         pyenv install 3.6.7
+
+RUN         apt -y install software-properties-common python-software-properties
+RUN         add-apt-repository -y ppa:pypa/ppa
+RUN         apt -y update
+RUN         apt -y install pipenv
+
+ENV         LANG    C.UTF-8
+ENV         LC_ALL  C.UTF-8
+
+RUN         apt -y install vim
+
+#카피는 로컬파일이 매번 바뀔수 있기때문에 레이어생성이 안되는 듯..
+#카피 이후의 명령어는 매번 새로 생성되는 느낌적인 느낌
+RUN         mkdir /srv/project
+COPY        ./Pipfile       /srv/project
+WORKDIR     /srv/project
+RUN         pipenv install --skip-lock
