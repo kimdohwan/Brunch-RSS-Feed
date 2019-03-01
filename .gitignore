@@ -1,3 +1,10 @@
+# git 에 올리지 않고 보안이 필요한 파일
+/.secrets
+
+# django static file path
+/.static
+
+# jupyter notebook 파일
 *.ipynb
 
 # Created by https://www.gitignore.io/api/git,linux,macos,python,django,pycharm+all
