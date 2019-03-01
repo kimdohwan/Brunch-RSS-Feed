@@ -13,7 +13,7 @@ def index(request):
     return render(request, 'index.html', context=context)
 
 
-# Feed 생성에 필요한 article detail view
+# article detail view
 def article_detail(request, pk):
     article = Article.objects.get(pk=pk)
     context = {
