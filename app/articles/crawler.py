@@ -62,7 +62,7 @@ class Crawler:
                 self.driver.get(url)
                 time.sleep(2)
                 self.driver.find_elements_by_css_selector('span.search_option > a')[1].click()  # 최신순 정렬 클릭
-                time.sleep(.5)  # 최신순으로 누르고 기다리는 시간
+                time.sleep(1)  # 최신순으로 누르고 기다리는 시간
 
             elif self.user_id:  # 작가의 글 페이지를 크롤링
                 url = f'https://brunch.co.kr/@{self.user_id}#articles'
