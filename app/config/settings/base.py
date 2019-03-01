@@ -18,12 +18,13 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__fil
 ROOT_DIR = os.path.dirname(BASE_DIR)
 TEMPLATE_DIR = os.path.join(BASE_DIR, 'templates')
 STATIC_DIR = os.path.join(BASE_DIR, 'static')
+SECRET_DIR = os.path.join(ROOT_DIR, '.secrets')
 
 STATICFILES_DIRS = [
     STATIC_DIR,
 ]
 
-secrets = os.path.join(os.path.join(ROOT_DIR, '.secrets'), 'base.json')
+secrets = os.path.join(SECRET_DIR, 'base.json')
 
 SECRET_KEY = json.load(open(secrets))['SECRET_KEY']
 
