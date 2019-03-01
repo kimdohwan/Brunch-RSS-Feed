@@ -17,6 +17,7 @@ requests-html = "*"
 selenium = "*"
 aiohttp = "*"
 uwsgi = "*"
+psycopg2-binary = "*"
 
 [requires]
 python_version = "3.6"
