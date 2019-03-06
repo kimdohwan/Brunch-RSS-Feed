@@ -19,6 +19,7 @@ aiohttp = "*"
 uwsgi = "*"
 psycopg2-binary = "*"
 boto3 = "*"
+django-storages = "*"
 
 [requires]
 python_version = "3.6"
