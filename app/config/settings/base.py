@@ -30,11 +30,9 @@ SECRET_KEY = json.load(open(secrets))['SECRET_KEY']
 
 AUTH_USER_MODEL = 'members.User'
 
-
 INSTALLED_APPS = [
     'members',
     'articles',
-    'django_extensions',
 
     'django.contrib.admin',
     'django.contrib.auth',
@@ -103,4 +101,3 @@ TIME_ZONE = 'Asia/Seoul'
 USE_I18N = True
 USE_L10N = True
 USE_TZ = False
-
