@@ -10,7 +10,7 @@ from selenium import webdriver
 from selenium.common.exceptions import NoSuchElementException, ElementNotVisibleException
 
 from .models import Keyword, Article, Writer
-from config.settings import BASE_DIR
+from config.settings.base import BASE_DIR
 
 
 class Crawler:
