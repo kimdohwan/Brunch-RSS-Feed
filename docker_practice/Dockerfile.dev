@@ -14,7 +14,7 @@ RUN         rm /chrome.deb
 ENV         BUILD_MODE      dev
 
 # project 폴더를 docker container 에 복사해주기
-COPY        .   ${PROJECT_DIR}
+COPY        ..   ${PROJECT_DIR}
 WORKDIR     ${PROJECT_DIR}
 
 

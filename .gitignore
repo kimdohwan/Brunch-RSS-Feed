@@ -1,3 +1,6 @@
+# local 에서 작성한 docker 연습 파일
+/docker_practice
+
 # git 에 올리지 않고 보안이 필요한 파일
 /.secrets
 
