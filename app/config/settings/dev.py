@@ -9,14 +9,15 @@ ALLOWED_HOSTS = [
     '.amazonaws.com',
 ]
 
-# Django-Storages
+# dev 에서만 사용되는 app
 INSTALLED_APPS += [
+    'django_extensions',
     'storages',
 ]
 
+# static file 을 aws S3 를 통해 불러오게 한다.
 # DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
 STATICFILES_STORAGE = 'config.storages.S3StaticStorage'
-
 # S3 Setting - bucket 정책 설정을 통해 S3 접속 시 사용하는 key 분리(생성 key/사용 key 다름)
 AWS_ACCESS_KEY_ID = secrets['AWS_ACCESS_KEY_ID']
 AWS_SECRET_ACCESS_KEY = secrets['AWS_SECRET_ACCESS_KEY']
