@@ -2,8 +2,11 @@ FROM            python:3.6-slim
 MAINTAINER      dosio0102@gmail.com
 
 RUN             apt -y update && apt -y dist-upgrade
+# uwsgi 설치에 필요한 build_essentiol, chrome driver 설치에 필요한 curl
 RUN             apt -y install build-essential curl
+RUN             apt -y install nginx supervisor
 
+# pipenv lock -r 로 생성된 requirements.txt 로 필요 패키지 install
 COPY            ./requirements.txt  /srv/
 RUN             pip install -r /srv/requirements.txt
 
