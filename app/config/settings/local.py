@@ -25,5 +25,5 @@ DATABASES = {
 
 # local 에서만 사용되는 app
 INSTALLED_APPS += [
-    # 'django_extensions',
+    'django_extensions',
 ]

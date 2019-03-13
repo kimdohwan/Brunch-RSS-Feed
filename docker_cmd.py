@@ -21,7 +21,7 @@ def runserver(mode):
 
 def run(mode):
     subprocess.call(
-        f'docker run --rm -it eb-docker:{mode} /bin/bash',
+        f'docker run --rm -it -p 9999:8000 eb-docker:{mode} /bin/bash',
         shell=True
     )
 

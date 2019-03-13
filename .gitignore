@@ -1,14 +1,18 @@
-# local 에서 작성한 docker 연습 파일
+### my .gitignore ###
+
+# docker example in local server
 /docker_practice
 
-# git 에 올리지 않고 보안이 필요한 파일
+# S3, RDS, Django secret keys
 /.secrets
 
 # django static file path
 /.static
 
-# jupyter notebook 파일
+# jupyter notebook
 *.ipynb
+
+### my .gitignore end ###
 
 # Created by https://www.gitignore.io/api/git,linux,macos,python,django,pycharm+all
 # Edit at https://www.gitignore.io/?templates=git,linux,macos,python,django,pycharm+all
@@ -330,3 +334,8 @@ modules.xml
 .venv/
 
 # End of https://www.gitignore.io/api/git,linux,macos,python,django,pycharm+all
+
+# Elastic Beanstalk Files
+.elasticbeanstalk/*
+!.elasticbeanstalk/*.cfg.yml
+!.elasticbeanstalk/*.global.yml

@@ -18,13 +18,6 @@ INSTALLED_APPS += [
 # static file 을 aws S3 를 통해 불러오게 한다.
 # DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
 STATICFILES_STORAGE = 'config.storages.S3StaticStorage'
-# S3 Setting - bucket 정책 설정을 통해 S3 접속 시 사용하는 key 분리(생성 key/사용 key 다름)
-AWS_ACCESS_KEY_ID = secrets['AWS_ACCESS_KEY_ID']
-AWS_SECRET_ACCESS_KEY = secrets['AWS_SECRET_ACCESS_KEY']
-AWS_STORAGE_BUCKET_NAME = secrets['AWS_STORAGE_BUCKET_NAME']
-AWS_S3_REGION_NAME = secrets['AWS_S3_REGION_NAME']
-AWS_S3_SIGNATURE_VERSION = secrets['AWS_S3_SIGNATURE_VERSION']
-# AWS_DEFAULT_ACL = secrets['AWS_DEFAULT_ACL']  # public read/private 옵션 설정 시 필요
 
 # Static
 STATIC_ROOT = os.path.join(ROOT_DIR, '.static')

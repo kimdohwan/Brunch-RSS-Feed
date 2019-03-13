@@ -24,9 +24,17 @@ STATICFILES_DIRS = [
     STATIC_DIR,
 ]
 
-secrets = os.path.join(SECRET_DIR, 'base.json')
+secrets = json.load(open(os.path.join(SECRET_DIR, 'base.json')))
 
-SECRET_KEY = json.load(open(secrets))['SECRET_KEY']
+SECRET_KEY = secrets['SECRET_KEY']
+
+# S3 Setting - bucket 정책 설정을 통해 S3 접속 시 사용하는 key 분리(생성 key/사용 key 다름)
+AWS_ACCESS_KEY_ID = secrets['AWS_ACCESS_KEY_ID']
+AWS_SECRET_ACCESS_KEY = secrets['AWS_SECRET_ACCESS_KEY']
+AWS_STORAGE_BUCKET_NAME = secrets['AWS_STORAGE_BUCKET_NAME']
+AWS_S3_REGION_NAME = secrets['AWS_S3_REGION_NAME']
+AWS_S3_SIGNATURE_VERSION = secrets['AWS_S3_SIGNATURE_VERSION']
+# AWS_DEFAULT_ACL = secrets['AWS_DEFAULT_ACL']  # public read/private 옵션 설정 시 필요
 
 AUTH_USER_MODEL = 'members.User'
 
