@@ -3,7 +3,7 @@ import sys
 from .base import *
 
 secrets = json.load(open(os.path.join(SECRET_DIR, 'production.json')))
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = secrets['ALLOWED_HOSTS']
 
