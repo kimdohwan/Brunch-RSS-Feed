@@ -23,6 +23,7 @@ SECRET_DIR = os.path.join(ROOT_DIR, '.secrets')
 STATICFILES_DIRS = [
     STATIC_DIR,
 ]
+STATIC_URL = '/static/'
 
 secrets = json.load(open(os.path.join(SECRET_DIR, 'base.json')))
 
