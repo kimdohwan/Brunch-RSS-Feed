@@ -12,21 +12,23 @@ https://docs.djangoproject.com/en/2.1/ref/settings/
 import json
 import os
 
-# directory 'app'
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-# directory 'Project'
-ROOT_DIR = os.path.dirname(BASE_DIR)
+# directory 설정
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))  # directory 'app'(source root)
+ROOT_DIR = os.path.dirname(BASE_DIR)  # directory 'Project'
 TEMPLATE_DIR = os.path.join(BASE_DIR, 'templates')
 STATIC_DIR = os.path.join(BASE_DIR, 'static')
 SECRET_DIR = os.path.join(ROOT_DIR, '.secrets')
 
+# .secret/base.py 를 json 으로 불러옴
+secrets = json.load(open(os.path.join(SECRET_DIR, 'base.json')))
+
+# static 설정
 STATICFILES_DIRS = [
     STATIC_DIR,
 ]
 STATIC_URL = '/static/'
 
-secrets = json.load(open(os.path.join(SECRET_DIR, 'base.json')))
-
+# 장고 프로젝트 SECRET_KEY
 SECRET_KEY = secrets['SECRET_KEY']
 
 # S3 Setting - bucket 정책 설정을 통해 S3 접속 시 사용하는 key 분리(생성 key/사용 key 다름)
@@ -37,7 +39,16 @@ AWS_S3_REGION_NAME = secrets['AWS_S3_REGION_NAME']
 AWS_S3_SIGNATURE_VERSION = secrets['AWS_S3_SIGNATURE_VERSION']
 # AWS_DEFAULT_ACL = secrets['AWS_DEFAULT_ACL']  # public read/private 옵션 설정 시 필요
 
+# 장고 user 모델이 아닌 members.User 를 기본으로 사용
 AUTH_USER_MODEL = 'members.User'
+
+# 관리자 계정을 자동으로 생성해주기 위한 설정
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+    'members.backends.SettingsBackend',
+]
+ADMIN_LOGIN = 'admin'
+ADMIN_PASSWORD = 'pbkdf2_sha256$120000$VKLuivHOICCB$Fvrv1E8v9vqIBPAWXCMCy+JxdobeHkDcL9WbUTk4/3I='
 
 INSTALLED_APPS = [
     'members',
