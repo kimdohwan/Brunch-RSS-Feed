@@ -1,5 +1,8 @@
 ### my .gitignore ###
 
+# deploy ec2 shell script(aleady removed ec2)
+/deploy_ec2
+
 # docker example in local server
 /docker_practice
 
