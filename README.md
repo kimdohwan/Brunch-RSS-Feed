@@ -28,7 +28,7 @@ Feed 프로그램: Liferea
 
 	브런치 웹사이트 크롤링
 
-	- javascript 로 구현된 코드는 headless selenium 사용(검색 결과 페이지 최신순으로 로드)
+	- javascript 로 구현된 코드는 headless selenium 사용(검색 결과 페이지)
 	- python async 비동기 http 요청(상세 페이지)
 	
 	RSS Feed 생성
@@ -38,10 +38,16 @@ Feed 프로그램: Liferea
 	
 	AWS
 	
-	- Elastic Beanstalk Docker 배포, Route 53(DNS)
+	- Elastic Beanstalk Docker 배포, Route 53(DNS), ssl 인증서
+	- nginx, uwsgi 설정
 	- EB extensions: 배포 후 manage.py migrate 실행
-	- AWS S3: bucket 정책 설정(bucket 생성과 사용 IAM 분리), CORS 설정
-	- AWS RDS: dev, production 환경의 DB 분리
+	- AWS S3: bucket 정책 설정(bucket 생성한 key 와 사용하는 Key 분리), CORS 설정
+	- AWS RDS(postgresql)
+	
+	개발 환경 분리
+	
+	- local, dev, production
+	- 환경 별 db 및 docker image
 	
 	자동화 스크립트
 	
