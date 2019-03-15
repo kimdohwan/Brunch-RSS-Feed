@@ -4,13 +4,13 @@
 
 - 브런치 웹사이트(https://brunch.co.kr/)에 업데이트되는 최신글들의 RSS Feed 를 생성해주는 서비스
 - 생성된 RSS Feed url 을 Feed 프로그램에 추가하여 브런치 글 구독 가능
-- Feed 종류: 검색어(최신순), 작가
+- Feed 종류: 검색어, 작가
 - 프로젝트 URL: https://idontknow.kr
 
 ## 프로젝트 영상
 
 https://youtu.be/C9IT2Uw7oNs  
-영상에 사용한 Feed 프로그램: Liferea
+Feed 프로그램: Liferea
 
 ## 프로젝트 구성
 
@@ -28,7 +28,7 @@ https://youtu.be/C9IT2Uw7oNs
 
 	브런치 웹사이트 크롤링
 
-	- javascript 로 구현된 코드는 headless selenium 사용(검색 결과 페이지)
+	- javascript 로 구현된 코드는 headless selenium 사용(검색 결과 페이지 최신순으로 로드)
 	- python async 비동기 http 요청(상세 페이지)
 	
 	RSS Feed 생성
