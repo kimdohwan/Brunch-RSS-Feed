@@ -4,6 +4,7 @@
 ## 프로젝트 소개
 브런치 웹사이트(https://brunch.co.kr/)에 업데이트되는 최신글들의 RSS Feed 를 생성해주는 서비스
 ## 프로젝트 영상
+https://youtu.be/C9IT2Uw7oNs
 
 ## 프로젝트 구성
 
