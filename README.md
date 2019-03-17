@@ -90,6 +90,33 @@ Feed 프로그램: Liferea
 		 Open eb
 		```
 
+## Pipfile(Requirements 생성: pipenv lock -r > requirements.txt)
+
+```
+[[source]]
+name = "pypi"
+url = "https://pypi.org/simple"
+verify_ssl = true
+
+[dev-packages]
+django-extensions = "*"
+awsebcli = "*"
+
+[packages]
+django = "*"
+beautifulsoup4 = "*"
+lxml = "*"
+requests = "*"
+selenium = "*"
+aiohttp = "*"
+uwsgi = "*"
+psycopg2-binary = "*"
+boto3 = "*"
+django-storages = "*"
+
+[requires]
+python_version = "3.6"
+```
 	
 ## Requirements
 
