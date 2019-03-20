@@ -10,7 +10,7 @@
 ## 프로젝트 영상
 
 https://youtu.be/C9IT2Uw7oNs  
-Feed 프로그램: Liferea
+Feed 프로그램: Liferea  
 
 ## 프로젝트 구성
 
@@ -23,6 +23,9 @@ Feed 프로그램: Liferea
 	- RDS
 	- Route 53
 	- S3
+	
+- 도식화
+![Image](https://github.com/kimdohwan/Project/blob/master/project_diagram.png)
 	
 - 주요내용
 
