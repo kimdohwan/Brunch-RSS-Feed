@@ -1,6 +1,6 @@
 from django.urls import path
 
-from .feed import KeywordFeed, WriterFeed
+from .feeds import KeywordFeed, WriterFeed
 from .views import article_detail, index, search
 
 app_name = 'articles'
