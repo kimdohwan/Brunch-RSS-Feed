@@ -5,13 +5,19 @@ from django.contrib.syndication.views import Feed
 from django.core.exceptions import ObjectDoesNotExist
 from django.http import Http404, HttpResponse
 from django.shortcuts import redirect
+from django.utils.feedgenerator import DefaultFeed
 from django.utils.http import http_date
 
 from ..crawler import Crawler
 
+class MyDefaultFeed(DefaultFeed):
+    content_type = 'application/xml; charset=utf-8'
+
 
 # 장고 피드를 상속받아 필요한 부분을 커스터마이징
 class MyFeed(Feed):
+    feed_type = MyDefaultFeed
+
     def __call__(self, request, *args, **kwargs):
 
         keyword = kwargs.get('keyword')
