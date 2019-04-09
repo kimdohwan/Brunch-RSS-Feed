@@ -9,7 +9,14 @@ ALLOWED_HOSTS = secrets['ALLOWED_HOSTS']
 INSTALLED_APPS += [
     'django_extensions',
     'storages',
+    'debug_toolbar',
 ]
+
+MIDDLEWARE += [
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
+]
+
+INTERNAL_IPS = ('127.0.0.1', )
 
 # static file 을 aws S3 를 통해 불러오게 한다.
 # DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
