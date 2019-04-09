@@ -18,8 +18,6 @@ class Crawler:
         self.keyword = keyword
         self.user_id = writer
 
-        self.result = self.crawl()  # True or False 로 크롤링 결과 리턴
-
         self.driver = None
         self.html = None
         self.article_txid_list = None
@@ -27,30 +25,22 @@ class Crawler:
         self.obj_keyword = None  # keyword 검색 시, manytomany 에 추가 시켜줄 keyword 객체
 
     def crawl(self):
-
         html_s = time.time()
         self.get_html()  # self.html 셋팅
         html_e = time.time()
         print('검색결과 페이지 크롤링 시간', html_e - html_s)
 
-        # 검색어가 정확히 입력된다면 article, writer, keyword 저장 후 True
-        if self.html:  # 검색결과가 존재한다면
-            self.get_article_txid_for_detail()  # 각 글들의 정보(아티클 링크)를 크롤링 한 뒤
+        self.get_article_txid_for_detail()  # 각 글들의 정보(아티클 링크)를 크롤링 한 뒤
 
-            # request 수 제한을 위해 최신글 5개만 크롤링하도록 임의로 설정
-            self.article_txid_list = self.article_txid_list[:5]
+        # request 수 제한을 위해 최신글 5개만 크롤링하도록 임의로 설정
+        self.article_txid_list = self.article_txid_list[:5]
 
-            self.check_duplicate()  # 중복검사를 통해 이미 저장한 아티클은 제외한다.
+        self.check_duplicate()  # 중복검사를 통해 이미 저장한 아티클은 제외한다.
 
-            # 예전 글을 포함하여 업데이트 하기위한 임의 설정
-            # self.article_txid_list = self.article_txid_list[:5]
+        # 예전 글을 포함하여 업데이트 하기위한 임의 설정
+        # self.article_txid_list = self.article_txid_list[:5]
 
-            self.crawl_detail_and_save()  # 상세페이지의 내용을 크롤링한다.
-
-            return True
-
-        else:  # 검색결과가 없는 경우 False
-            return False
+        self.crawl_detail_and_save()  # 상세페이지의 내용을 크롤링한다.
 
     # 검색 결과 목록을 크롤링
     def get_html(self):
