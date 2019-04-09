@@ -1,39 +1,36 @@
 from calendar import timegm
 
-from django.contrib import messages
 from django.contrib.syndication.views import Feed
 from django.core.exceptions import ObjectDoesNotExist
 from django.http import Http404, HttpResponse
-from django.shortcuts import redirect
 from django.utils.feedgenerator import DefaultFeed
 from django.utils.http import http_date
 
 from ..crawler import Crawler
 
+
+# Default content_type='application/rss+xml'
 class MyDefaultFeed(DefaultFeed):
     content_type = 'application/xml; charset=utf-8'
 
 
-# 장고 피드를 상속받아 필요한 부분을 커스터마이징
+# Customizing Django Feed
+#   - Add crawling process
+#   - Customizing attributes of Feed object
 class MyFeed(Feed):
     feed_type = MyDefaultFeed
 
     def __call__(self, request, *args, **kwargs):
-
+        # Get 'Crawler parameter' from URL kwargs
         keyword = kwargs.get('keyword')
         user_id = kwargs.get('user_id')
-        # 피드 생성을 위해 페이지 크롤링(crawler.py)
+
+        # Execute crawling
         crawler = Crawler(keyword=keyword, writer=user_id)
+        crawler.crawl()
 
-        if not crawler.result:  # 잘못된 검색어로인해 결과 없을 경우
-            messages.add_message(
-                request,
-                messages.INFO,
-                f'"{"키워드" if keyword else "작가"}" {keyword or user_id} 에 대한 검색결과 없음'
-            )  # 메시지 담아서 메인페이지로 리다이렉트
-            return redirect('articles:index')
-
-        try:  # 피드 생성
+        # Create(Response) Feed
+        try:
             obj = self.get_object(request, *args, **kwargs)
         except ObjectDoesNotExist:
             raise Http404('Feed object does not exist.')
