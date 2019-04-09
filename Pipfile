@@ -18,6 +18,8 @@ uwsgi = "*"
 psycopg2-binary = "*"
 boto3 = "*"
 django-storages = "*"
+ipython = "*"
+django-debug-toolbar = "*"
 
 [requires]
 python_version = "3.6"
