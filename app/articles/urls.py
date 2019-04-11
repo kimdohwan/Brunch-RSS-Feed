@@ -1,5 +1,6 @@
 from django.urls import path
 
+from articles.tests import test
 from .feeds import KeywordFeed, WriterFeed
 from .views import article_detail, index, create_feed_url
 
@@ -10,4 +11,5 @@ urlpatterns = [
     path('detail/<pk>/', article_detail, name='article-detail'),
     path('feeds/keyword/<keyword>/', KeywordFeed(), name='feeds-keyword'),
     path('feeds/writer/<user_id>/', WriterFeed(), name='feeds-writer'),
+    path('test/<keyword>/', test),
 ]
