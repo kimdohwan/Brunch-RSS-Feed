@@ -10,7 +10,6 @@ from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.common.exceptions import NoSuchElementException, ElementNotVisibleException
 
-from .models import Keyword, Article, Writer
 from config.settings.base import BASE_DIR
 
 
@@ -34,7 +33,7 @@ class Crawler:
         self.get_article_txid_for_detail()  # 각 글들의 정보(아티클 링크)를 크롤링 한 뒤
 
         # request 수 제한을 위해 최신글 5개만 크롤링하도록 임의로 설정
-        self.article_txid_list = self.article_txid_list[:3]
+        self.article_txid_list = self.article_txid_list[:6]
 
         self.check_duplicate()  # 중복검사를 통해 이미 저장한 아티클은 제외한다.
 
@@ -79,40 +78,70 @@ class Crawler:
 
         self.article_txid_list = article_txid_list
 
+    # Check article is already existed on DataBase.
     def check_duplicate(self):
-        # 중복 체크 후 새로 추가할 리스트
-        article_txid_list = [article_txid for article_txid in self.article_txid_list]
-        # 이미 데이터에 존재하는 아티클
+        conn = self.connect
+        cur = conn.cursor()
 
+        article_txid_list = [article_txid for article_txid in self.article_txid_list]
         for article_txid in self.article_txid_list:
-            cur = self.connect.cursor()
             cur.execute(f"SELECT * FROM articles_article WHERE article_txid='{article_txid}'")
             fetched_article = cur.fetchone()
 
-            # 만약 존재하는 아티클이라면
+            # Remove existed article from crawling article list
             if fetched_article:
-                # 크롤링 할 리스트에서 제외해주고
                 article_txid_list.remove(article_txid)
 
         self.checked_article_txid_list = article_txid_list
-
-        # 키워드 검색일 경우 키워드를 저장
         if self.keyword:
-            existed_article_txid = set(self.article_txid_list) - set(self.checked_article_txid_list)
+            self.keyword_process()
 
-            existed_article = [Article.objects.get(article_txid=article_txid) for article_txid in existed_article_txid]
-            # cur = self.cur
-            # for article_txid in existed_article_txid:
-            #
-            #     cur.execute(f"SELECT * FROM articles_article WHERE article_txid='{article_txid}'")
 
-            self.obj_keyword, _ = Keyword.objects.get_or_create(keyword=self.keyword)
+    # Save Keyword and add keyword to existed article.
+    def keyword_process(self):
+        conn = self.connect
+        cur = conn.cursor()
 
-            for article in existed_article:
-                # 이미 존재하는 아티클에 키워드가 추가되어있지 않다면 키워드를 추가한다.
-                if not article.keyword.filter(keyword=self.keyword):
-                    article.keyword.add(self.obj_keyword)
-                    article.save()
+        # Save keyword to keyword table and add keyword to existed_article
+        existed_article_txid = set(self.article_txid_list) - set(self.checked_article_txid_list)
+
+        # self.obj_keyword, _ = Keyword.objects.get_or_create(keyword=self.keyword)
+        try:
+            cur.execute(f"SELECT id from articles_keyword WHERE keyword='{self.keyword}'")
+            keyword_id = cur.fetchone()[0]
+        except:
+            cur.execute(f"INSERT INTO articles_keyword(keyword) VALUES ('{self.keyword}') RETURNING id")
+            keyword_id = cur.fetchone()[0]
+
+
+
+        # existed_article = [Article.objects.get(article_txid=article_txid) for article_txid in existed_article_txid]
+        existed_article_id_list = []
+        for article_txid in existed_article_txid:
+            cur.execute(f"SELECT id FROM articles_article WHERE article_txid='{article_txid}'")
+            existed_article_id_list.append(cur.fetchone()[0])
+
+        for article_id in existed_article_id_list:
+            # 이미 존재하는 아티클에 키워드가 추가되어있지 않다면 키워드를 추가한다.
+            # if not article.keyword.filter(keyword=self.keyword):
+            #     article.keyword.add(self.obj_keyword)
+            #     article.save()
+            try:
+                cur.execute(
+                    f"SELECT "
+                    f"id "
+                    f"FROM "
+                    f"articles_article_keyword "
+                    f"WHERE "
+                    f"article_id='{article_id}' AND keyword_id='{keyword_id}'"
+                )
+                article_keyword_id = cur.fetchone()
+            except:
+                cur.execute(f"INSERT INTO "
+                            f"articles_article_keyword(article_id, keyword_id) "
+                            f"VALUES "
+                            f"('{article_id}', '{keyword_id}')")
+        conn.commit()
 
     # 상세페이지로 보내는 요청을 비동기적으로 구현
     # 각각의 상세페이지에서 아티클 정보 저장
@@ -158,26 +187,38 @@ class Crawler:
                 soup.find('meta', {'property': 'og:url'})['content']
             )[0]
 
-            writer, _ = Writer.objects.update_or_create(
-                user_id=user_id,
-                defaults={
-                    'media_name': media_name,
-                    'num_subscription': num_subscription
-                }
-            )
+            # writer, _ = Writer.objects.update_or_create(
+            #     user_id=user_id,
+            #     defaults={
+            #         'media_name': media_name,
+            #         'num_subscription': num_subscription
+            #     }
+            # )
+            try:
+                cur.execute(
+                    f"UPDATE "
+                    f"articles_writer "
+                    f"SET "
+                    f"media_name='{media_name}', num_subscription='{num_subscription}' "
+                    f"WHERE "
+                    f"user_id='{user_id}' "
+                    f"RETURNING "
+                    f"id"
+                )
+                writer_id = cur.fetchone()[0]
+            except:
+                cur.execute(
+                    f"INSERT INTO "
+                    f"articles_writer(user_id, media_name, num_subscription) "
+                    f"VALUES "
+                    f"('{user_id}', '{media_name}', '{num_subscription}') "
+                    f"RETURNING "
+                    f"id"
+                )
+                writer_id = cur.fetchone()[0]
 
-            content = content.replace("'", "''")
+
             # article 생성
-            cur.execute(
-                f"INSERT INTO "
-                f"articles_article("
-                f"title, content, article_txid, published_time, text_id, writer_id"
-                f") "
-                f"VALUES ("
-                f"'{title}', '{content}', '{article_txid}', '{published_time}'::timestamp, '{text_id}', '{writer.id}'"
-                f")"
-            )
-            conn.commit()
             # article_without_keyword = Article.objects.create(
             #     title=title,
             #     content=content,
@@ -186,11 +227,31 @@ class Crawler:
             #     text_id=text_id,
             #     writer=writer
             # )
+            title, content = title.replace("'", "''"), content.replace("'", "''")
+            cur.execute(
+                f"INSERT INTO "
+                f"articles_article(title, content, article_txid, published_time, text_id, writer_id) "
+                f"VALUES "
+                f"('{title}', '{content}', '{article_txid}', '{published_time}'::timestamp, '{text_id}', '{writer_id}') "
+                f"RETURNING "
+                f"id"
+            )
+            article_id = cur.fetchone()[0]
 
             # article 에 keyword 추가(ManyToMany) - keyword 검색일 경우에 한하여
             # if self.keyword:
             #     article_without_keyword.keyword.add(self.obj_keyword)
+            if self.keyword:
+                cur.execute(f"SELECT id FROM articles_keyword WHERE keyword='{self.keyword}'")
+                keyword_id = cur.fetchone()[0]
+                cur.execute(
+                    f"INSERT INTO "
+                    f"articles_article_keyword(article_id, keyword_id) "
+                    f"VALUES "
+                    f"('{article_id}', '{keyword_id}')"
+                )
 
+            conn.commit()
             print(f'저장 완료 {url}')
 
         # futures 에 Task 할당(url, 중복검사 완료된 checked_article_txid)
