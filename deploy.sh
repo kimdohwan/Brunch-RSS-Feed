@@ -12,6 +12,9 @@ echo " Git Add secrets"
 git add --all
 echo " Git Add All"
 
+git reset HEAD lambda_function
+echo " Git reset lambda_function"
+
 eb deploy --profile doh-brunch-EB --staged
 echo " Eb deploy"
 
