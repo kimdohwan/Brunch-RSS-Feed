@@ -1,5 +1,8 @@
 ### my .gitignore ###
 
+/lambda_function/db_info.json
+/lambda_function/lambda_function.zip
+
 # deploy ec2 shell script(aleady removed ec2)
 /deploy_ec2
 
