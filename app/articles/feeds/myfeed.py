@@ -1,5 +1,6 @@
 from calendar import timegm
 
+import requests
 from django.contrib import messages
 from django.contrib.syndication.views import Feed
 from django.core.exceptions import ObjectDoesNotExist
@@ -22,18 +23,18 @@ class MyFeed(Feed):
 
         keyword = kwargs.get('keyword')
         user_id = kwargs.get('user_id')
-        # 피드 생성을 위해 페이지 크롤링(crawler.py)
-        crawler = Crawler(keyword=keyword, writer=user_id)
+        # # 피드 생성을 위해 페이지 크롤링(crawler.py)
+        # crawler = Crawler(keyword=keyword, writer=user_id)
+        # crawler.crawl()
 
-        if not crawler.result:  # 잘못된 검색어로인해 결과 없을 경우
-            messages.add_message(
-                request,
-                messages.INFO,
-                f'"{"키워드" if keyword else "작가"}" {keyword or user_id} 에 대한 검색결과 없음'
-            )  # 메시지 담아서 메인페이지로 리다이렉트
-            return redirect('articles:index')
-
-        try:  # 피드 생성
+        # lambda crawler
+        requests.post(
+            "https://7n82o95659.execute-api.ap-northeast-2.amazonaws.com/Post/",
+            json={
+                "keyword": keyword,
+                "writer": user_id,
+            })
+        try:
             obj = self.get_object(request, *args, **kwargs)
         except ObjectDoesNotExist:
             raise Http404('Feed object does not exist.')
