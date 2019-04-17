@@ -18,8 +18,6 @@ class Crawler:
         self.keyword = keyword
         self.user_id = writer
 
-        self.result = self.crawl()  # True or False 로 크롤링 결과 리턴
-
         self.driver = None
         self.html = None
         self.article_txid_list = None
