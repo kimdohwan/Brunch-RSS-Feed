@@ -23,13 +23,15 @@ class MyFeed(Feed):
     def __call__(self, request, *args, **kwargs):
         # Get 'Crawler parameter' from URL kwargs
         keyword = kwargs.get('keyword')
+        writer_id = kwargs.get('writer_id')
         user_id = kwargs.get('user_id')
 
-        # Execute crawling
-        crawler = Crawler(keyword=keyword, writer=user_id)
-        crawler.crawl()
+        if not user_id:
+            # Execute crawling
+            crawler = Crawler(keyword=keyword, writer_id=writer_id, user_id=user_id)
+            crawler.crawl()
 
-        # Create(Response) Feed
+        # Create Feed(Response)
         try:
             obj = self.get_object(request, *args, **kwargs)
         except ObjectDoesNotExist:

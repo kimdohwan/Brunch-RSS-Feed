@@ -35,11 +35,18 @@ def create_feed_url(request):
         # Create Crawler instance
         crawler = Crawler(
             keyword=input_word if input_word_option == 'keyword' else None,
-            writer=input_word if input_word_option == 'writer' else None
+            writer_id=input_word if input_word_option == 'writer' else None,
+            user_id=input_word if input_word_option == 'user' else None,
         )
 
-        # Check if search result is existed on Brunch website
-        crawler.get_html()
+        # No crawling about option 'keyword' and 'writer'(it will be crawled when requests Feed url)
+        # Execute crawling about option 'user'(it's not gonna be crawled when requests Feed url)
+        if input_word_option == 'user':
+            crawler.crawl()
+        else:
+            crawler.search_input_word()
+
+        # crawler.html returns T/F about the result of searching brunch website
         if crawler.html:
             root_url = 'http://idontknow.kr/'
             feed_uri = f'feeds/{input_word_option}/{input_word}/'
@@ -67,4 +74,5 @@ def create_feed_url(request):
                 messages.WARNING,
                 f'{"키워드" if input_word_option == "keyword" else "작가"} {input_word} 에 대한 검색결과 없음'
             )
+
     return redirect('articles:index')

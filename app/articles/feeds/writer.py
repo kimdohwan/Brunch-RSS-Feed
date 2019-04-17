@@ -12,4 +12,4 @@ class WriterFeed(MyFeed):
         return Writer.objects.get(user_id=user_id).articles.all().order_by('-published_time')
 
     def get_object(self, request, *args, **kwargs):
-        return str(kwargs['user_id'])  # 검색된 작가id 전달
+        return str(kwargs['writer_id'])  # 검색된 작가id 전달

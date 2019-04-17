@@ -7,8 +7,14 @@ class Keyword(models.Model):
 
 class Writer(models.Model):
     user_id = models.CharField(verbose_name='작가ID', null=False, max_length=200, unique=True)
-    media_name = models.CharField(verbose_name='작가명', null=False, max_length=200)
-    num_subscription = models.IntegerField(verbose_name='구독자 수', null=True)
+    media_name = models.CharField(verbose_name='작가명', null=True, blank=True, max_length=200)
+    num_subscription = models.IntegerField(verbose_name='구독자 수', null=True, blank=True)
+    following = models.ManyToManyField(
+        'self',
+        # on_delete=models.SET_NULL,
+        # null=True
+        blank=True
+    )
 
 
 class Article(models.Model):

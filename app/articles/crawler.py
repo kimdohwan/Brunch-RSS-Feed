@@ -14,9 +14,12 @@ from config.settings.base import BASE_DIR
 
 
 class Crawler:
-    def __init__(self, keyword=None, writer=None):
+    def __init__(self, keyword=None, writer_id=None, user_id=None):
         self.keyword = keyword
-        self.user_id = writer
+        self.writer_id = writer_id
+        self.user_id = user_id
+
+        self.writer_id_list = []
 
         self.driver = None
         self.html = None
@@ -25,25 +28,31 @@ class Crawler:
         self.obj_keyword = None  # keyword 검색 시, manytomany 에 추가 시켜줄 keyword 객체
 
     def crawl(self):
-        html_s = time.time()
-        self.get_html()  # self.html 셋팅
-        html_e = time.time()
-        print('검색결과 페이지 크롤링 시간', html_e - html_s)
+        print(' - Start Crawl', self.keyword, self.writer_id, self.user_id)
+        search_imput_word_s = time.time()
+        self.search_input_word()
+
+        if self.user_id:
+            self.get_following_list()
+            # for writer_id in self.writer_id_list:
+            for writer_id in self.writer_id_list[:5]:
+                crawler = Crawler(writer_id=writer_id)
+                crawler.crawl()
+            return
+        search_imput_word_e = time.time()
+        print(' - search_input_word() 드라이버 동작 시간: ', search_imput_word_e - search_imput_word_s)
 
         self.get_article_txid_for_detail()  # 각 글들의 정보(아티클 링크)를 크롤링 한 뒤
 
-        # request 수 제한을 위해 최신글 5개만 크롤링하도록 임의로 설정
-        self.article_txid_list = self.article_txid_list[:5]
+        # request 수 제한을 위해 최신글 1개만 크롤링하도록 임의로 설정
+        self.article_txid_list = self.article_txid_list[:3]
 
         self.check_duplicate()  # 중복검사를 통해 이미 저장한 아티클은 제외한다.
-
-        # 예전 글을 포함하여 업데이트 하기위한 임의 설정
-        # self.article_txid_list = self.article_txid_list[:5]
 
         self.crawl_detail_and_save()  # 상세페이지의 내용을 크롤링한다.
 
     # 검색 결과 목록을 크롤링
-    def get_html(self):
+    def search_input_word(self):
         self.set_headless_driver()  # 셀레니움 드라이버 셋팅
 
         try:
@@ -54,10 +63,14 @@ class Crawler:
                 self.driver.find_elements_by_css_selector('span.search_option > a')[1].click()  # 최신순 정렬 클릭
                 time.sleep(1)  # 최신순으로 누르고 기다리는 시간
 
-            elif self.user_id:  # 작가의 글 페이지를 크롤링
-                url = f'https://brunch.co.kr/@{self.user_id}#articles'
+            elif self.writer_id:  # 작가의 글 페이지를 크롤링
+                url = f'https://brunch.co.kr/@{self.writer_id}#articles'
                 self.driver.get(url)
                 self.driver.find_element_by_css_selector('div.wrap_article_list')
+            elif self.user_id:
+                url = f'https://brunch.co.kr/@{self.user_id}/following'
+                self.driver.get(url)
+                self.driver.find_elements_by_class_name('link_follow')
             html = self.driver.page_source
 
         except (NoSuchElementException, ElementNotVisibleException):
@@ -65,6 +78,43 @@ class Crawler:
 
         self.driver.close()
         self.html = html
+
+    def get_following_list(self):
+        url = f'https://brunch.co.kr/@{self.user_id}/following'
+
+        self.set_headless_driver()
+        self.driver.get(url)
+
+        # # ----- Settings for selenium scroll -----
+        # scroll_pause_time = 0.5
+        # # Get scroll height
+        # last_height = self.driver.execute_script("return document.body.scrollHeight")
+        # while True:
+        #     # Scroll down to bottom
+        #     self.driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+        #
+        #     # Wait to load page
+        #     time.sleep(scroll_pause_time)
+        #
+        #     # Calculate new scroll height and compare with last scroll height
+        #     new_height = self.driver.execute_script("return document.body.scrollHeight")
+        #     if new_height == last_height:
+        #         break
+        #     last_height = new_height
+        # # ----------------------------------------
+
+        following_list = self.driver.find_elements_by_class_name('link_follow')
+        num_following = self.driver.find_elements_by_class_name('text_key_color')[1].text
+
+        user, _ = Writer.objects.update_or_create(user_id=self.user_id)
+        for following in following_list:
+            writer_id = re.findall(r'/@(\S+)', following.get_attribute('href'))[0]
+            self.writer_id_list.append(writer_id)
+            writer_object, _ = Writer.objects.get_or_create(user_id=writer_id)
+            user.following.add(writer_object)
+
+        print(' - writer_id_list=', self.writer_id_list, len(self.writer_id_list), num_following)
+        self.driver.close()
 
     # 글 상세 페이지로 넘어갈 때 사용할 article_txid(아이디+글번호)를 리스트로 담아 리턴
     def get_article_txid_for_detail(self):
