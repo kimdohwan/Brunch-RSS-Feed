@@ -31,31 +31,33 @@
 
             <!-- 키워드 or 작가 검색 체크 박스 -->
             <div class="form-check form-check-inline">
-                <input class="form-check-input" type="radio" name="search" id="inlineRadio1" value="keyword" checked>
+                <input class="form-check-input" type="radio" name="input_option" id="inlineRadio1" value="keyword">
                 <label class="form-check-label" for="inlineRadio1">키워드</label>
             </div>
             <div class="form-check form-check-inline">
-                <input class="form-check-input" type="radio" name="search" id="inlineRadio2" value="writer">
+                <input class="form-check-input" type="radio" name="input_option" id="inlineRadio2" value="writer">
                 <label class="form-check-label" for="inlineRadio2">작가</label>
             </div>
 
             <!-- user 가 입력하는 검색어 input -->
             <div class="input-group">
-                <input type="text" class="form-control" name="search_text" placeholder="입력한 검색어를 통해 RSS Feed 생성">
+                <input type="text" class="form-control" name="input_word" placeholder="입력한 검색어를 통해 RSS Feed 생성">
                 <div class="input-group-prepend">
                     <button class="btn btn-outline-secondary" type="submit">Create</button>
                 </div>
             </div>
-
         </div>
     </div>
 </form>
 
-{% if messages %}
-    {% for message in messages %}
-        <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %} text-center" role="alert">{{ message }}</div>
-    {% endfor %}
-{% endif %}
+<div class="row justify-content-md-center text-black-50">
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %} text-center"
+                 role="alert">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+</div>
 
 <!-- 현재 제공하고 있는 피드(키워드/작가) 목록 -->
 <div class="row justify-content-md-center" style="margin-top: 20px;">
