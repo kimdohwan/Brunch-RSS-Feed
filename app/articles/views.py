@@ -31,11 +31,12 @@ def create_feed_url(request):
     input_option = request.GET.get("input_option")
 
     crawler = Crawler(
-        keyword=input_option if input_option == 'keyword' else None,
+        keyword=input_word if input_option == 'keyword' else None,
         writer=input_word if input_option == 'writer' else None,
     )
-    crawler.get_html()
 
+    # 'get_html()' makes 'crawler.html' which result from searching 'input_word' on brunch web
+    crawler.get_html()
     if crawler.html:
         root_url = 'http://idontknow.kr/'
         feed_uri = f'feeds/{input_option}/{input_word}/'
