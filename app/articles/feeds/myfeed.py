@@ -1,11 +1,9 @@
 from calendar import timegm
 
 import requests
-from django.contrib import messages
 from django.contrib.syndication.views import Feed
 from django.core.exceptions import ObjectDoesNotExist
 from django.http import Http404, HttpResponse
-from django.shortcuts import redirect
 from django.utils.feedgenerator import DefaultFeed
 from django.utils.http import http_date
 
@@ -21,19 +19,21 @@ class MyFeed(Feed):
 
     def __call__(self, request, *args, **kwargs):
 
+        # url 로부터 parameter 를 셋팅
         keyword = kwargs.get('keyword')
         user_id = kwargs.get('user_id')
-        # # 피드 생성을 위해 페이지 크롤링(crawler.py)
-        # crawler = Crawler(keyword=keyword, writer=user_id)
-        # crawler.crawl()
 
-        # lambda crawler
-        requests.post(
-            "https://7n82o95659.execute-api.ap-northeast-2.amazonaws.com/Post/",
-            json={
-                "keyword": keyword,
-                "writer": user_id,
-            })
+        # Django Crawler 사용 - crawler.py
+        crawler = Crawler(keyword=keyword, writer=user_id)
+        crawler.crawl()
+
+        # # lambda crawler
+        # requests.post(
+        #     "https://7n82o95659.execute-api.ap-northeast-2.amazonaws.com/Post/",
+        #     json={
+        #         "keyword": keyword,
+        #         "writer": user_id,
+        #     })
         try:
             obj = self.get_object(request, *args, **kwargs)
         except ObjectDoesNotExist:
