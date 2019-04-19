@@ -1,7 +1,5 @@
 # Brunch RSS Feed 생성
 
----
-
 ## 프로젝트 소개
 
 - 브런치 웹사이트(https://brunch.co.kr/)에 업데이트되는 최신글들의 RSS Feed 를 생성해주는 서비스
@@ -10,21 +8,16 @@
 
 - Feed 종류: 검색어, 작가
 
-
----
-
 ## 프로젝트 영상
 
-작가 검색: https://youtu.be/m4htPBcDcng
+작가 검색: https://youtu.be/m4htPBcDcng  
 키워드 검색: https://youtu.be/1qhyNqZItJI
 
 사용한 Feed 프로그램(웹): feedly
 
----
-
 ## 프로젝트 구성
 
-##### 사용 언어 및 프로그램 
+#### 사용 언어 및 프로그램 
 
 - AWS Elastic Beanstalk
 - AWS Lambda
@@ -38,10 +31,10 @@
 - S3
 - SQL
 
-##### 도식화
-![Image](https://github.com/kimdohwan/Project/blob/master/project_diagram.png)
+#### 도식화
+![Image](https://github.com/kimdohwan/Project/blob/master/blueprint_brunch.pdf)
 
-##### 주요내용
+#### 주요내용
 
 - 브런치 웹사이트 크롤링
     - 크롤링 Tool -  Headless Chrome, Selenium
@@ -76,51 +69,46 @@
 
     - build.py: 숫자 입력으로 환경 별 Dockerfile 빌드
          ```
-           	➜  Project git:(master) ./build.py
-         ```
-    	1. base
-    	2. local
-    	3. dev
-    	4. production
+        ➜  Project git:(master) ./build.py
+            1. base
+            2. local
+            3. dev
+            4. production
 
         	Choice: 1
       	```
+        
     - docker_cmd.py: 명령어, 환경 입력으로 docker 명령어 실행
-         ```
-           	➜  Project git:(master) ./docker_cmd.py --help
-           	usage: docker_cmd.py [-h] cmd mode
-         ```
+        ```
+         ➜  Project git:(master) ./docker_cmd.py --help
+             usage: docker_cmd.py [-h] cmd mode
 
-         positional arguments:
-           cmd         select cmd ['runserver', 'run']
-           mode        select docker mode ['base', 'local', 'dev', 'production']
+             positional arguments:
+               cmd         select cmd ['runserver', 'run']
+               mode        select docker mode ['base', 'local', 'dev', 'production']
+               
          ➜  Project git:(master) ./docker_cmd.py runserver dev 
-         Performing system checks...
+             Performing system checks...
 
-         System check identified no issues (0 silenced).
-         March 15, 2019 - 16:22:49
-         Django version 2.1.7, using settings 'config.settings.dev'
-         Starting development server at http://0:8000/
-         Quit the server with CONTROL-C.
-
-         ```
+             System check identified no issues (0 silenced).
+             March 15, 2019 - 16:22:49
+             Django version 2.1.7, using settings 'config.settings.dev'
+             Starting development server at http://0:8000/
+             Quit the server with CONTROL-C.
+        ```
          
-         ```
     - deploy.sh: eb deploy 실행 시 필요한 명령어 실행
-         ```
-         	➜  Project git:(master) ./deploy.sh 
-             	 Create requirements.txt
-             	 Git Add requirements.txt
-             	 Git Add secrets
-             	 Git Add all
-             	 Eb deploy
-             	 Git Reset secrets, requirements.txt
-             	 Rm requirements.txt
-             	 Open eb
-         ```
-    ```
-    
-    ```
+        ```
+        ➜  Project git:(master) ./deploy.sh 
+             Create requirements.txt
+             Git Add requirements.txt
+             Git Add secrets
+             Git Add all
+             Eb deploy
+             Git Reset secrets, requirements.txt
+             Rm requirements.txt
+             Open eb
+        ```
 
 ## Pipfile(Requirements 생성: pipenv lock -r > requirements.txt)
 
