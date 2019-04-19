@@ -32,7 +32,7 @@
 - SQL
 
 #### 도식화
-![Image](https://github.com/kimdohwan/Project/blob/master/blueprint_brunch.pdf)
+![Image](https://github.com/kimdohwan/Project/blob/master/blueprint_brunch.png)
 
 #### 주요내용
 
