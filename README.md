@@ -54,7 +54,7 @@
       - Subnet 및 Routing Table 연결
       - NAT instance 생성
     - API Gateway
-      - 크롤링 URL 생성
+      - 크롤링 URL(lambda function trigger)
     - S3 Upload(zip)
   - 그 외
     - Route 53(DNS), ssl 인증서
