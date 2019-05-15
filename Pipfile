@@ -5,6 +5,7 @@ verify_ssl = true
 
 [dev-packages]
 django-extensions = "*"
+ipython = "*"
 awsebcli = "*"
 
 [packages]
@@ -18,6 +19,7 @@ uwsgi = "*"
 psycopg2-binary = "*"
 boto3 = "*"
 django-storages = "*"
+awsebcli = "*"
 
 [requires]
 python_version = "3.6"
