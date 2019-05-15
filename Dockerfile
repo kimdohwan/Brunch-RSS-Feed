@@ -18,14 +18,14 @@ RUN             rm /chrome.deb
 ENV             BUILD_MODE  production
 ENV             DJANGO_SETTINGS_MODULE  config.settings.${BUILD_MODE}
 
-COPY            .       /srv/Brunch-RSSFeed
+COPY            .       /srv/Brunch-RSS-Feed
 
 # nginx 설정파일을 미리 준비해둔 파일로 바꿔준다
             # user root, daemon off 설정이 들어간 '기본' 설정
-RUN         cp -f   /srv/Brunch-RSSFeed/.config/${BUILD_MODE}/nginx.conf \
+RUN         cp -f   /srv/Brunch-RSS-Feed/.config/${BUILD_MODE}/nginx.conf \
                     /etc/nginx/nginx.conf && \
             # nginx 가 사용할 site 로 내 앱 설정을 넣어준다.(socket, port 설정)
-            cp -f   /srv/Brunch-RSSFeed/.config/${BUILD_MODE}/nginx_app.conf \
+            cp -f   /srv/Brunch-RSS-Feed/.config/${BUILD_MODE}/nginx_app.conf \
                     /etc/nginx/sites-available/ && \
             # 이전에 설정해놓은 파일 삭제
 #            rm -f   /etc/nginx/sites-enabled/* && \
@@ -34,7 +34,7 @@ RUN         cp -f   /srv/Brunch-RSSFeed/.config/${BUILD_MODE}/nginx.conf \
                     /etc/nginx/sites-enabled/
 
 # supervisor 셋팅 해준다
-RUN         cp -f   /srv/Brunch-RSSFeed/.config/${BUILD_MODE}/supervisor_app.conf \
+RUN         cp -f   /srv/Brunch-RSS-Feed/.config/${BUILD_MODE}/supervisor_app.conf \
                     /etc/supervisor/conf.d/
 
 # Docker container 에서 eb 의 reverse proxy 로 요청을 받는 port(eb 설정에 필요)
