@@ -24,16 +24,16 @@ class MyFeed(Feed):
         user_id = kwargs.get('user_id')
 
         # Django Crawler 사용 - crawler.py
-        # crawler = Crawler(keyword=keyword, writer=user_id)
-        # crawler.crawl()
+        crawler = Crawler(keyword=keyword, writer=user_id)
+        crawler.crawl()
 
         # lambda crawler
-        requests.post(
-            "https://7n82o95659.execute-api.ap-northeast-2.amazonaws.com/Post/",
-            json={
-                "keyword": keyword,
-                "writer": user_id,
-            })
+        # requests.post(
+        #     "https://7n82o95659.execute-api.ap-northeast-2.amazonaws.com/Post/",
+        #     json={
+        #         "keyword": keyword,
+        #         "writer": user_id,
+        #     })
         try:
             obj = self.get_object(request, *args, **kwargs)
         except ObjectDoesNotExist:
