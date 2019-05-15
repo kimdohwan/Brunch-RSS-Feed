@@ -1,0 +1,40 @@
+version: "3"
+
+services:
+  django_local:
+    image: brunch-rss-feed:local
+    build:
+      context: .
+      dockerfile: Dockerimages/Dockerfile.local
+    ports:
+      - "8002:8000"
+    volumes:
+      - ./app:/srv/Brunch-RSS-Feed/app
+    command:  >
+      sh -c "/srv/Brunch-RSS-Feed/app/manage.py runserver 0.0.0.0:8000"
+
+
+  django_dev:
+    image: brunch-rss-feed:dev
+    build:
+      context: .
+      dockerfile: Dockerimages/Dockerfile.dev
+    ports:
+      - "8003:80"
+    volumes:
+      - ./app:/srv/Brunch-RSS-Feed/app
+    command:  >
+      sh -c "supervisord -n"
+
+
+  django_production:
+    image: brunch-rss-feed:production
+    build:
+      context: .
+      dockerfile: Dockerimages/Dockerfile.production
+    ports:
+      - "8004:7000"
+    volumes:
+      - ./app:/srv/Brunch-RSS-Feed/app
+    command:  >
+      sh -c "supervisord -n"
