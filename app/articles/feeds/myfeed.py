@@ -1,13 +1,12 @@
 from calendar import timegm
 
-import requests
 from django.contrib.syndication.views import Feed
 from django.core.exceptions import ObjectDoesNotExist
 from django.http import Http404, HttpResponse
 from django.utils.feedgenerator import DefaultFeed
 from django.utils.http import http_date
 
-from ..crawler import Crawler
+from ..utils.crawling.crawler import Crawler
 
 class MyDefaultFeed(DefaultFeed):
     content_type = 'application/xml; charset=utf-8'

@@ -2,7 +2,7 @@ from django.conf import settings
 from django.contrib import messages
 from django.shortcuts import render, redirect
 
-from articles.crawler import Crawler
+from .utils.crawling.crawler import Crawler
 from .models import Article, Keyword, Writer
 
 
@@ -28,7 +28,7 @@ def article_detail(request, pk):
 def create_feed_url(request):
     # input_option = 'keyword' or 'user_id'
     input_word = request.GET.get('input_word')
-    input_option = request.GET.get("input_option")
+    input_option = request.GET.get("input_option", "keyword")
 
     crawler = Crawler(
         keyword=input_word if input_option == 'keyword' else None,
