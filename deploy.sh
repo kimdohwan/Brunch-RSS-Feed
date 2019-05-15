@@ -15,7 +15,7 @@ echo " Git Add All"
 git reset HEAD lambda_function
 echo " Git reset lambda_function"
 
-eb deploy --profile doh-brunch-EB --staged
+eb deploy --profile EB_Full --staged
 echo " Eb deploy"
 
 git reset HEAD .secrets/ requirements.txt
