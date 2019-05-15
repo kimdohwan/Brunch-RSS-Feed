@@ -3,9 +3,6 @@
 pipenv lock -r > requirements.txt
 echo " Create requirements.txt"
 
-git add requirements.txt
-echo " Git Add requirements.txt"
-
 git add .secrets -f
 echo " Git Add secrets"
 
@@ -18,11 +15,8 @@ echo " Git reset lambda_function"
 eb deploy --profile EB_Full --staged
 echo " Eb deploy"
 
-git reset HEAD .secrets/ requirements.txt
-echo " Git Reset secrets, requirements.txt"
-
-rm requirements.txt
-echo " Rm requirements.txt"
+git reset HEAD .secrets/
+echo " Git Reset secrets"
 
 eb open
 echo " Open eb"
