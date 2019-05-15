@@ -1,0 +1,7 @@
+FROM            brunch-rss-feed:base
+MAINTAINER      dosio0102@gmail.com
+
+#COPY            ./requirements.txt  /srv/
+#RUN             pip install -r /srv/requirements.txt
+
+COPY            .       /srv/Brunch-RSS-Feed
