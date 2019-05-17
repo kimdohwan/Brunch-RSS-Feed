@@ -10,11 +10,6 @@ RUN             apt -y install nginx supervisor
 COPY            ./requirements.txt  /srv/
 RUN             pip install -r /srv/requirements.txt
 
-# 셀레니엄 headless chrome 실행을 위한 패키지 설치
-RUN             curl https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb -o /chrome.deb
-RUN             dpkg -i /chrome.deb || apt-get install -yf
-RUN             rm /chrome.deb
-
 ENV             BUILD_MODE  production
 ENV             DJANGO_SETTINGS_MODULE  config.settings.${BUILD_MODE}
 
@@ -28,7 +23,7 @@ RUN         cp -f   /srv/Brunch-RSS-Feed/.config/${BUILD_MODE}/nginx.conf \
             cp -f   /srv/Brunch-RSS-Feed/.config/${BUILD_MODE}/nginx_app.conf \
                     /etc/nginx/sites-available/ && \
             # 이전에 설정해놓은 파일 삭제
-#            rm -f   /etc/nginx/sites-enabled/* && \
+            rm -f   /etc/nginx/sites-enabled/* && \
             # enabled 로 링크 생성 및 완료
             ln -sf  /etc/nginx/sites-available/nginx_app.conf \
                     /etc/nginx/sites-enabled/
