@@ -33,17 +33,7 @@ class MyFeed(Feed):
         #         "keyword": keyword,
         #         "writer": user_id,
         #     })
-        try:
-            obj = self.get_object(request, *args, **kwargs)
-        except ObjectDoesNotExist:
-            raise Http404('Feed object does not exist.')
-        feedgen = self.get_feed(obj, request)
-        response = HttpResponse(content_type=feedgen.content_type)
-        if hasattr(self, 'item_pubdate') or hasattr(self, 'item_updateddate'):
-            response['Last-Modified'] = http_date(
-                timegm(feedgen.latest_post_date().utctimetuple()))
-        feedgen.write(response, 'utf-8')
-        return response
+        super().__call__(self, request, *args, **kwargs)
 
     def item_title(self, item):
         return item.title  # 포스팅의 제목 설정(피드 이름 아님)
