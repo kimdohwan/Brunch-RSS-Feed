@@ -64,38 +64,25 @@
 - 자동화 스크립트
 
     - build.py: 숫자 입력으로 환경 별 Dockerfile 빌드
-         ```
-        ➜  Project git:(master) ./build.py
-            1. base
-            2. local
-            3. dev
-            4. production
-
-        	Choice: 1
       ```
-       
-    - docker_cmd.py: 명령어, 환경 입력으로 docker 명령어 실행
-        ```
-         ➜  Project git:(master) ./docker_cmd.py --help
-             usage: docker_cmd.py [-h] cmd mode
+      ➜  SHELL COMMAND : ./build.py
+          0. base
+          1. local
+          2. dev
+          3. production
+      
+      	Choice: <원하는 빌드 이미지 번호 입력>
+      ```
 
-             positional arguments:
-               cmd         select cmd ['runserver', 'run']
-               mode        select docker mode ['base', 'local', 'dev', 'production']
-               
-         ➜  Project git:(master) ./docker_cmd.py runserver dev 
-             Performing system checks...
+    - docker-compose.yml : local / dev / production 컨테이너 실행
 
-             System check identified no issues (0 silenced).
-             March 15, 2019 - 16:22:49
-             Django version 2.1.7, using settings 'config.settings.dev'
-             Starting development server at http://0:8000/
-             Quit the server with CONTROL-C.
         ```
-        
+        ➜  SHELL COMMAND : docker-compose up
+        ```
+
     - deploy.sh: eb deploy 실행 시 필요한 명령어 실행
         ```
-        ➜  Project git:(master) ./deploy.sh 
+        ➜  SHELL COMMAND : ./deploy.sh 
              Create requirements.txt
              Git Add requirements.txt
              Git Add secrets
