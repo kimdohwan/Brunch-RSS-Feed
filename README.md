@@ -20,7 +20,6 @@
 #### 사용 언어 및 프로그램 
 
 - AWS Elastic Beanstalk
-- AWS Lambda
 - Django
 - Docker
 - Nginx
@@ -32,6 +31,9 @@
 - SQL
 
 #### 도식화
+
+크롤링 속도 문제로 인해 lambda 사용하지 않도록 배포된 상태
+
 ![Image](https://github.com/kimdohwan/Project/blob/master/blueprint_brunch.png)
 
 #### 주요내용
@@ -49,13 +51,7 @@
     - EC2
     - Docker application
     - EB extensions
-  - Crawling - AWS Lambda function
-    - VPC
-      - Subnet 및 Routing Table 연결
-      - NAT instance 생성
-    - API Gateway
-      - 크롤링 URL(lambda function trigger)
-    - S3 Upload(zip)
+  - ~~Crawling - AWS Lambda function~~
   - 그 외
     - Route 53(DNS), ssl 인증서
     - S3 - bucket 생성한 key 와 사용하는 Key 분리), CORS 설정
@@ -76,8 +72,8 @@
             4. production
 
         	Choice: 1
-      	```
-        
+      ```
+       
     - docker_cmd.py: 명령어, 환경 입력으로 docker 명령어 실행
         ```
          ➜  Project git:(master) ./docker_cmd.py --help
@@ -96,7 +92,7 @@
              Starting development server at http://0:8000/
              Quit the server with CONTROL-C.
         ```
-         
+        
     - deploy.sh: eb deploy 실행 시 필요한 명령어 실행
         ```
         ➜  Project git:(master) ./deploy.sh 
