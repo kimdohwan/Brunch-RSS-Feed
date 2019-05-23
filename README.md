@@ -32,7 +32,7 @@
 
 #### 도식화
 
-크롤링 속도 문제로 인해 lambda 사용하지 않도록 배포된 상태
+크롤링 속도 문제로 인해 lambda 사용하지 않도록 배포된 상태(Django - [crawler.py](https://github.com/kimdohwan/Brunch-RSS-Feed/blob/master/app/articles/utils/crawling/crawler.py))
 
 ![Image](https://github.com/kimdohwan/Project/blob/master/blueprint_brunch.png)
 
