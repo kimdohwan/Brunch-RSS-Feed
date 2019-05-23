@@ -7,7 +7,7 @@ import time
 from bs4 import BeautifulSoup
 from selenium.common.exceptions import NoSuchElementException, ElementNotVisibleException
 
-from articles.utils.crawling.driver import set_headless_driver
+from .driver import set_headless_driver
 from ...models import Keyword, Article, Writer
 
 
