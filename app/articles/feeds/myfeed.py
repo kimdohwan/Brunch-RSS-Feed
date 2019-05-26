@@ -16,24 +16,24 @@ class MyDefaultFeed(DefaultFeed):
 class MyFeed(Feed):
     feed_type = MyDefaultFeed
 
-    def __call__(self, request, *args, **kwargs):
-
-        # url 로부터 parameter 를 셋팅
-        keyword = kwargs.get('keyword')
-        user_id = kwargs.get('user_id')
-
-        # Django Crawler 사용 - crawler.py
-        crawler = Crawler(keyword=keyword, writer=user_id)
-        crawler.crawl()
-
-        # lambda crawler
-        # requests.post(
-        #     "https://7n82o95659.execute-api.ap-northeast-2.amazonaws.com/Post/",
-        #     json={
-        #         "keyword": keyword,
-        #         "writer": user_id,
-        #     })
-        super().__call__(self, request, *args, **kwargs)
+    # def __call__(self, request, *args, **kwargs):
+    #
+    #     # url 로부터 parameter 를 셋팅
+    #     # keyword = kwargs.get('keyword')
+    #     # user_id = kwargs.get('user_id')
+    #     #
+    #     # # Django Crawler 사용 - crawler.py
+    #     # crawler = Crawler(keyword=keyword, writer=user_id)
+    #     # crawler.crawl()
+    #
+    #     # lambda crawler
+    #     # requests.post(
+    #     #     "https://7n82o95659.execute-api.ap-northeast-2.amazonaws.com/Post/",
+    #     #     json={
+    #     #         "keyword": keyword,
+    #     #         "writer": user_id,
+    #     #     })
+    #     super().__call__(self, request, *args, **kwargs)
 
     def item_title(self, item):
         return item.title  # 포스팅의 제목 설정(피드 이름 아님)
