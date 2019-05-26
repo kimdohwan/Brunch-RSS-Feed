@@ -20,6 +20,10 @@ psycopg2-binary = "*"
 boto3 = "*"
 django-storages = "*"
 awsebcli = "*"
+celery = {extras = ["redis"],version = "*"}
+django-celery-beat = "*"
+django-celery-results = "*"
+redis = "*"
 
 [requires]
 python_version = "3.6"
