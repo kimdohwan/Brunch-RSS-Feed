@@ -16,10 +16,10 @@ class Crawler:
         self.keyword = keyword
         self.user_id = writer
 
-        self.driver = None
-        self.html = None
-        self.article_txid_list = None
-        self.checked_article_txid_list = None
+        self.driver = None  # 크롤링에 사용할 selenium 드라이버
+        self.html = None  # 검색결과 목록 페이지의 html
+        self.article_txid_list = None  # 각각의 글들에 대한 id 를 담은 list
+        self.checked_article_txid_list = None  # 'DB에 존재하는 글을 제외한' 글의 id list
         self.obj_keyword = None  # keyword 검색 시, manytomany 에 추가 시켜줄 keyword 객체
 
     def crawl(self):
@@ -31,22 +31,23 @@ class Crawler:
 
         # 검색어가 정확히 입력된다면 article, writer, keyword 저장 후 True
         if self.html:  # 검색결과가 존재한다면
-            self.get_article_txid_for_detail()  # 각 글들의 정보(아티클 링크)를 크롤링 한 뒤
+            self.get_article_txid_for_detail()  # 글의 url 링크를 생성할 수 있는 txid(article id 에 해당)를 셋팅
 
             # request 수 제한을 위해 최신글 5개만 크롤링하도록 임의로 설정
             self.article_txid_list = self.article_txid_list[:5]
 
             self.check_duplicate()  # 중복검사를 통해 이미 저장한 아티클은 제외한다.
+            self.crawl_detail_and_save()  # 상세페이지의 내용을 크롤링한 후 저장.
 
-            # 예전 글을 포함하여 업데이트 하기위한 임의 설정
-            # self.article_txid_list = self.article_txid_list[:5]
-
-            self.crawl_detail_and_save()  # 상세페이지의 내용을 크롤링한다.
-
+    # 검색 결과 존재여부에 따라 True/False 로 리턴
+    @property
+    def search_result(self):
+        # 검색을 수행한 후 결과 페이지의 html을 셋팅하는 메서드 실행
+        self.get_html()
+        # html 이 셋팅되었다면 검색결과가 존재하며, None이라면 검색결과 없음
+        if self.html:
             return True
-
-        else:  # 검색결과가 없는 경우 False
-            return False
+        return False
 
     # 검색 결과 목록을 크롤링
     def get_html(self):
@@ -123,7 +124,7 @@ class Crawler:
 
             print(f'Get response .. {url}')
 
-            title = soup.find('meta', {'property': 'og:title'})['content']
+            title = soup.find('meta', {'property': 'og:title'}).get('content')
             content = soup.select_one('div.wrap_body').prettify()
             media_name = soup.find('meta', {'name': 'article:media_name'})['content']
 
@@ -192,4 +193,3 @@ class Crawler:
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
         loop.run_until_complete(create_task_async())
-
