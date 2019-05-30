@@ -9,6 +9,8 @@ ALLOWED_HOSTS = secrets['ALLOWED_HOSTS']
 INSTALLED_APPS += [
     'django_extensions',
     'storages',
+    'django_celery_beat',
+    'django_celery_results',
 ]
 
 # static file 을 aws S3 를 통해 불러오게 한다.
@@ -21,3 +23,13 @@ WSGI_APPLICATION = 'config.wsgi.dev.application'
 
 # DB
 DATABASES = secrets['DATABASES']
+
+# CELERY + Redis
+CELERY_BROKER_URL = 'redis://redis:6379/0'
+CELERY_RESULT_BACKEND = 'redis://redis:6379/0'
+
+# # CELERY_BEAT
+CELERY_ACCEPT_CONTENT = ['application/json']
+CELERY_TAST_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TIMEZONE = 'Asia/Seoul' # Celery beat가 스케줄러이기 때문에 시간에 대한 정의를 해야함
