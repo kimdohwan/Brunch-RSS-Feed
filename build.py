@@ -15,7 +15,6 @@ IMANE_NAME = 'brunch-rss-feed'
 def mode_fucntion(mode):
     if mode in MODES:
         cur_module = sys.modules[__name__]
-        print(cur_module)
         getattr(cur_module, f'build_{mode}')()
     else:
         raise ValueError
@@ -24,13 +23,15 @@ def mode_fucntion(mode):
 def build_base():
     try:
         subprocess.call('pipenv lock -r > requirements.txt', shell=True)
-        subprocess.call(f'docker build -t {IMANE_NAME}:base -f Dockerimages/Dockerfile.production .', shell=True)
+        subprocess.call(f'docker build -t {IMANE_NAME}:base -f Dockerimages/Dockerfile.base .', shell=True)
     finally:
         subprocess.call('docker rmi - f $(docker images -f "dangling=true" -q)', shell=True)
 
 
 def build(mode):
     try:
+        if mode in [MODES[1], MODES[2]]:
+            subprocess.call('pipenv lock -r --dev > requirements.txt', shell=True)
         subprocess.call(f'docker build -t {IMANE_NAME}:{mode} -f Dockerimages/Dockerfile.{mode} .', shell=True)
     finally:
         subprocess.call('docker rmi - f $(docker images -f "dangling=true" -q)', shell=True)
