@@ -8,6 +8,7 @@ from django.utils.http import http_date
 
 from ..utils.crawling.crawler import Crawler
 
+
 class MyDefaultFeed(DefaultFeed):
     content_type = 'application/xml; charset=utf-8'
 
@@ -50,4 +51,9 @@ class MyFeed(Feed):
     def get_feed(self, obj, request):
         self.title = self.brunch_title + obj  # 피드의 이름 설정(포스팅 제목 아님)
         feed = super().get_feed(obj, request)
+
+        # celery 에서 크롤링/피드생성 작업을 하는 동안 처리해줄 피드 메시지
+        if not feed.items:
+            feed.feed['title'] = f'{obj} 에 대한 피드를 생성 중입니다'
+
         return feed

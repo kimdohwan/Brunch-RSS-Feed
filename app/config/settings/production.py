@@ -21,6 +21,17 @@ WSGI_APPLICATION = 'config.wsgi.production.application'
 # DB
 DATABASES = secrets['DATABASES']
 
+# CELERY + Redis
+CELERY_BROKER_URL = secrets['AWS_ELASTICACHE_REDIS']
+CELERY_RESULT_BACKEND = secrets['AWS_ELASTICACHE_REDIS']
+
+# # CELERY_BEAT
+CELERY_ACCEPT_CONTENT = ['application/json']
+CELERY_TAST_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TIMEZONE = 'Asia/Seoul'
+
+
 # runserver 테스트 할 떄는 로그파일 생성되지 않도록 설정
 if 'runserver' not in sys.argv:
     # eb docker 내서 장고 에러를 기록하는 파일 생성
@@ -44,13 +55,3 @@ if 'runserver' not in sys.argv:
             },
         },
     }
-
-# CELERY + Redis
-CELERY_BROKER_URL = 'redis://redis-1.f7gjmg.0001.apn2.cache.amazonaws.com:6379'
-CELERY_RESULT_BACKEND = 'redis://redis-1.f7gjmg.0001.apn2.cache.amazonaws.com:6379'
-
-# # CELERY_BEAT
-CELERY_ACCEPT_CONTENT = ['application/json']
-CELERY_TAST_SERIALIZER = 'json'
-CELERY_RESULT_SERIALIZER = 'json'
-CELERY_TIMEZONE = 'Asia/Seoul' # Celery beat가 스케줄러이기 때문에 시간에 대한 정의를 해야함

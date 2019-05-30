@@ -1,17 +1,27 @@
 version: "3"
 
 services:
-  django_local:
-    image: brunch-rss-feed:local
-    build:
-      context: .
-      dockerfile: Dockerimages/Dockerfile.local
-    ports:
-      - "8002:8000"
-    volumes:
-      - ./app:/srv/Brunch-RSS-Feed/app
-    command:  >
-      sh -c "/srv/Brunch-RSS-Feed/app/manage.py runserver 0.0.0.0:8000"
+#  django_local:
+#    image: brunch-rss-feed:local
+#    build:
+#      context: .
+#      dockerfile: Dockerimages/Dockerfile.local
+#    ports:
+#      - "8002:8000"
+#    volumes:
+#      - ./app:/srv/Brunch-RSS-Feed/app
+#    working_dir:
+#      /srv/Brunch-RSS-Feed/app/
+#    command:  >
+#      sh -c "/srv/Brunch-RSS-Feed/app/manage.py runserver 0.0.0.0:8000"
+#                   셀러리 커맨드 별도로 구동 필요
+#    links:
+#      - redis
+#
+#  redis:
+#    image: redis
+#    ports:
+#      - "6379:6379"
 
 
   django_dev:
@@ -25,16 +35,23 @@ services:
       - ./app:/srv/Brunch-RSS-Feed/app
     command:  >
       sh -c "supervisord -n"
+    links:
+      - redis
 
-
-  django_production:
-    image: brunch-rss-feed:production
-    build:
-      context: .
-      dockerfile: Dockerimages/Dockerfile.production
+  redis:
+    image: redis
     ports:
-      - "8004:7000"
-    volumes:
-      - ./app:/srv/Brunch-RSS-Feed/app
-    command:  >
-      sh -c "supervisord -n"
+      - "6379:6379"
+
+
+#  django_production:
+#    image: brunch-rss-feed:production
+#    build:
+#      context: .
+#      dockerfile: Dockerimages/Dockerfile.production
+#    ports:
+#      - "8004:7000"
+#    volumes:
+#      - ./app:/srv/Brunch-RSS-Feed/app
+#    command:  >
+#      sh -c "supervisord -n"
