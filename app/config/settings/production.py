@@ -44,3 +44,13 @@ if 'runserver' not in sys.argv:
             },
         },
     }
+
+# CELERY + Redis
+CELERY_BROKER_URL = 'redis://redis-1.f7gjmg.0001.apn2.cache.amazonaws.com:6379'
+CELERY_RESULT_BACKEND = 'redis://redis-1.f7gjmg.0001.apn2.cache.amazonaws.com:6379'
+
+# # CELERY_BEAT
+CELERY_ACCEPT_CONTENT = ['application/json']
+CELERY_TAST_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TIMEZONE = 'Asia/Seoul' # Celery beat가 스케줄러이기 때문에 시간에 대한 정의를 해야함
