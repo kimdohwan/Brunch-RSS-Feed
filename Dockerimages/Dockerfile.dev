@@ -1,8 +1,8 @@
 FROM            brunch-rss-feed:base
 MAINTAINER      dosio0102@gmail.com
 
-#COPY            ./requirements.txt  /srv/
-#RUN             pip install -r /srv/requirements.txt
+COPY            ./requirements.txt  /srv/
+RUN             pip install -r /srv/requirements.txt
 
 ENV             BUILD_MODE  dev
 ENV             DJANGO_SETTINGS_MODULE  config.settings.${BUILD_MODE}
@@ -27,4 +27,4 @@ RUN         cp -f   /srv/Brunch-RSS-Feed/.config/${BUILD_MODE}/supervisor_app.co
                     /etc/supervisor/conf.d/
 
 # supervisord -n 명령어는 .config/supervisor_app.conf 의 명령어를 수행한다
-CMD         supervisord -n
+#CMD         supervisord -n
