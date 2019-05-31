@@ -43,7 +43,7 @@ CELERY_TIMEZONE = 'Asia/Seoul' # Celery beat가 스케줄러이기 때문에 시
 
 # Sentry
 sentry_sdk.init(
-    dsn='https://8ba8c02a3fa2415198d88455ff7fd6b9@sentry.io/1472002',
+    dsn=secrets['SENTRY_DSN'],
     integrations=[
         DjangoIntegration(),
         CeleryIntegration(),

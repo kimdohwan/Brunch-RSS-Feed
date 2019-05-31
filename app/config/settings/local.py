@@ -45,13 +45,3 @@ CELERY_TAST_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TIMEZONE = 'Asia/Seoul'  # Celery beat가 스케줄러이기 때문에 시간에 대한 정의를 해야함
 
-# Sentry
-sentry_sdk.init(
-    dsn='https://8ba8c02a3fa2415198d88455ff7fd6b9@sentry.io/1472002',
-    integrations=[
-        DjangoIntegration(),
-        CeleryIntegration(),
-        # AioHttpIntegration(),  python version 3.7 이상 지원하는 기능, 추후 적용해 볼것
-    ]
-)
-
