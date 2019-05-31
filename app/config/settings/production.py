@@ -32,8 +32,14 @@ CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TIMEZONE = 'Asia/Seoul'
 
 
-# runserver 테스트 할 떄는 로그파일 생성되지 않도록 설정
-if 'runserver' not in sys.argv:
+# 로컬에서 production 환경의 runserver, shell_plus 실행 시 로깅파일 생성 안되도록 설정
+local_command = ['runserver', 'shell_plus', 'shell']
+for command in local_command:
+    if command in sys.argv:
+        print(command)
+        break
+
+else:
     # eb docker 내서 장고 에러를 기록하는 파일 생성
     LOG_FILE_PATH = '/var/log/django_error.log'
     LOGGING = {
