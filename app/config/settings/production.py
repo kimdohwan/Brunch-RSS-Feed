@@ -40,7 +40,7 @@ for command in local_command:
         break
 
 else:
-    # eb docker 내서 장고 에러를 기록하는 파일 생성
+    # eb docker 에서 장고 에러를 기록하는 파일 생성
     LOG_FILE_PATH = '/var/log/django_error.log'
     LOGGING = {
         'version': 1,
