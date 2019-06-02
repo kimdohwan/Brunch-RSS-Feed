@@ -20,11 +20,14 @@
 #### 사용 언어 및 프로그램 
 
 - AWS Elastic Beanstalk
+- AWS ElastiCache
+- Celery
 - Django
 - Docker
 - Nginx
 - PostgreSQL
 - Python
+- Redis
 - RDS
 - Route 53
 - S3
@@ -39,8 +42,10 @@
 #### 주요내용
 
 - 브런치 웹사이트 크롤링
+
     - 크롤링 Tool -  Headless Chrome, Selenium
     - 비동기 처리 - Python async, aiohttp
+    - <추가> Celery, Redis 를 사용해 크롤링 작업을 백그라운드에서 실행
 
 - RSS Feed 생성
 
@@ -55,6 +60,7 @@
   - 그 외
     - Route 53(DNS), ssl 인증서
     - S3 - bucket 생성한 key 와 사용하는 Key 분리), CORS 설정
+    - <추가> Elasticache - redis
 
 - 개발 환경 분리
 
@@ -74,7 +80,7 @@
       	Choice: <원하는 빌드 이미지 번호 입력>
       ```
 
-    - docker-compose.yml : local / dev / production 컨테이너 실행
+    - docker-compose.yml : ~~local~~ / dev / production 컨테이너 실행
 
         ```
         ➜  SHELL COMMAND : docker-compose up
@@ -103,6 +109,7 @@ verify_ssl = true
 
 [dev-packages]
 django-extensions = "*"
+ipython = "*"
 awsebcli = "*"
 
 [packages]
@@ -116,45 +123,13 @@ uwsgi = "*"
 psycopg2-binary = "*"
 boto3 = "*"
 django-storages = "*"
+awsebcli = "*"
+celery = {extras = ["redis"],version = "*"}
+django-celery-beat = "*"
+django-celery-results = "*"
+redis = "*"
 
 [requires]
 python_version = "3.6"
   ```
 
-## Requirements
-
-```
-aiohttp==3.5.4
-async-timeout==3.0.1
-attrs==19.1.0
-beautifulsoup4==4.7.1
-boto3==1.9.111
-botocore==1.12.111
-certifi==2019.3.9
-chardet==3.0.4
-django-storages==1.7.1
-django==2.1.7
-docutils==0.14
-idna-ssl==1.1.0 ; python_version < '3.7'
-idna==2.8
-jmespath==0.9.4
-lxml==4.3.2
-multidict==4.5.2
-psycopg2-binary==2.7.7
-python-dateutil==2.8.0 ; python_version >= '2.7'
-pytz==2018.9
-requests==2.21.0
-s3transfer==0.2.0
-selenium==3.141.0
-six==1.12.0
-soupsieve==1.8
-typing-extensions==3.7.2 ; python_version < '3.7'
-urllib3==1.24.1 ; python_version >= '3.4'
-uwsgi==2.0.18
-yarl==1.3.0
-
-```
-
-```
-
-```
