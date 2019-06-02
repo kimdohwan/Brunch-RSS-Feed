@@ -3,10 +3,9 @@
 ## 프로젝트 소개
 
 - 브런치 웹사이트(https://brunch.co.kr/)에 업데이트되는 최신글들의 RSS Feed 를 생성해주는 서비스
-
 - 생성된 RSS Feed url 을 Feed 프로그램에 추가하여 브런치 글 구독 가능
-
 - Feed 종류: 검색어, 작가
+- 배포 URL: https://www.idontknow.kr
 
 ## 프로젝트 영상
 
@@ -31,6 +30,7 @@
 - RDS
 - Route 53
 - S3
+- Sentry
 - SQL
 
 #### 도식화
