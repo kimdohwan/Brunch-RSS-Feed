@@ -84,7 +84,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument(
     '-m', '--mode',
     help=f'select docker mode {MODES}',
-    type=int
+    type=str
 )
 args = parser.parse_args()
 

@@ -55,3 +55,7 @@ services:
 #      - ./app:/srv/Brunch-RSS-Feed/app
 #    command:  >
 #      sh -c "supervisord -n"
+#  redis:
+#    image: redis
+#    ports:
+#      - "6379:6379"

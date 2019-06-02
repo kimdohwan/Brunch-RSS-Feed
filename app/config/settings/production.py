@@ -1,5 +1,9 @@
 import sys
 
+import sentry_sdk
+from sentry_sdk.integrations.celery import CeleryIntegration
+from sentry_sdk.integrations.django import DjangoIntegration
+
 from .base import *
 
 DEBUG = False
@@ -31,8 +35,18 @@ CELERY_TAST_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TIMEZONE = 'Asia/Seoul'
 
+# Sentry
+sentry_sdk.init(
+    dsn=secrets['SENTRY_DSN'],
+    integrations=[
+        DjangoIntegration(),
+        CeleryIntegration(),
+        # AioHttpIntegration(),  python version 3.7 이상 지원하는 기능, 추후 적용해 볼것
+    ]
+)
 
 # 로컬에서 production 환경의 runserver, shell_plus 실행 시 로깅파일 생성 안되도록 설정
+# 로컬에서 manage.py shell 을 이용한 DB 쿼리셋 작업 등을 위해 추가
 local_command = ['runserver', 'shell_plus', 'shell']
 for command in local_command:
     if command in sys.argv:
@@ -40,7 +54,7 @@ for command in local_command:
         break
 
 else:
-    # eb docker 내서 장고 에러를 기록하는 파일 생성
+    # eb docker 에서 장고 에러를 기록하는 파일 생성
     LOG_FILE_PATH = '/var/log/django_error.log'
     LOGGING = {
         'version': 1,
