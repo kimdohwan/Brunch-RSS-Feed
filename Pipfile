@@ -25,6 +25,7 @@ django-celery-beat = "*"
 django-celery-results = "*"
 redis = "*"
 sentry-sdk = "==0.8.0"
+requests-html = "*"
 
 [requires]
 python_version = "3.6"

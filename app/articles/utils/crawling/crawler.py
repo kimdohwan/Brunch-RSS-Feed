@@ -35,7 +35,7 @@ class Crawler:
             self.get_article_txid()  # 글의 url 링크를 생성할 수 있는 txid(article id 에 해당)를 셋팅
 
             # request 수 제한을 위해 최신글 5개만 크롤링하도록 임의로 설정
-            self.article_txid_list = self.article_txid_list[:10]
+            self.article_txid_list = self.article_txid_list[:3]
 
             self.remove_existed_article()  # 중복검사를 통해 이미 저장한 아티클은 제외한다.
 
