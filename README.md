@@ -1,3 +1,5 @@
+[개요 및 기술 적용 내용](https://github.com/kimdohwan/MyStudy/blob/master/project/BrunchRssFeed.md)
+
 #### 사용 언어 및 프로그램 
 
 - AWS Elastic Beanstalk
